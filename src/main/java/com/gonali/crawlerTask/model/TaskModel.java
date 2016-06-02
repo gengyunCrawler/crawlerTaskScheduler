@@ -309,7 +309,38 @@ public class TaskModel implements EntityModel {
         return sql;
     }
 
-    public String updateSqlBuilder(String tableName, EntityModel model) {
-        return null;
+    public String updateSqlBuilder(String tableName, EntityModel taskModel) {
+
+        String sql = "UPDATE  " + tableName + "  " +
+                "SET userId = " + "'" + ((TaskModel) taskModel).getUserId() + "'," +
+                " taskType = " + "'" + ((TaskModel) taskModel).getTaskType() + "'," +
+                " taskRemark = " + "'" + ((TaskModel) taskModel).getTaskRemark() + "'," +
+                " taskSeedUrl = " + "'" + ((TaskModel) taskModel).getTaskSeedUrl().getSeedurlJsonString() + "'," +
+                " taskCrawlerDepth = "+ ((TaskModel) taskModel).getTaskCrawlerDepth() + "," +
+                " taskDynamicDepth = " + ((TaskModel) taskModel).getTaskDynamicDepth() + "," +
+                " taskWeight = " + ((TaskModel) taskModel).getTaskWeight() + "," +
+                " taskStartTime = " + ((TaskModel) taskModel).getTaskStartTime() + "," +
+                " taskRecrawlerDays = " + ((TaskModel) taskModel).getTaskRecrawlerDays() + "," +
+                " taskTemplatePath = " + "'" + ((TaskModel) taskModel).getTaskTemplatePath() + "'," +
+                " taskTagPath = " + "'" + ((TaskModel) taskModel).getTaskTagPath() + "'," +
+                " taskProtocolFilter = " + "'" + ((TaskModel) taskModel).getTaskProtocolFilter() + "'," +
+                " taskSuffixFilter = " + "'" + ((TaskModel) taskModel).getTaskSuffixFilter() + "'," +
+                " taskRegexFilter = " + "'" + ((TaskModel) taskModel).getTaskRegexFilter() + "'," +
+                " taskStatus = " + "'" + ((TaskModel) taskModel).getTaskStatus() + "'," +
+                " taskDeleteFlag = " + ((TaskModel) taskModel).isTaskDeleteFlag() + "," +
+                " taskSeedAmount = " + ((TaskModel) taskModel).getTaskSeedAmount() + "," +
+                " taskSeedImportAmount = " + ((TaskModel) taskModel).getTaskSeedImportAmount() + "," +
+                " taskCompleteTimes = " + ((TaskModel) taskModel).getTaskCompleteTimes() + "," +
+                " taskNodeThread = " + ((TaskModel) taskModel).getTaskNodeThread() + "," +
+                " taskStopTime = " + ((TaskModel) taskModel).getTaskStopTime() + "," +
+                " taskCrawlerAmountInfo = " + "'" + ((TaskModel) taskModel).getTaskCrawlerAmountInfo().getCrawlerAmountInfoJsonString() + "'," +
+                " taskCrawlerInstanceInfo =  " + "'" + ((TaskModel) taskModel).getTaskCrawlerInstanceInfo().getCrawlerInstanceInfoJsonString() + "'   " +
+                "WHERE taskId = " + "'" + ((TaskModel) taskModel).getTaskId() + "'";
+
+        return sql;
     }
+
+
+
+
 }

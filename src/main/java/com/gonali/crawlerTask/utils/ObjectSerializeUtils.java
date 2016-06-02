@@ -1,7 +1,6 @@
 package com.gonali.crawlerTask.utils;
 
 import com.gonali.crawlerTask.model.EntityModel;
-import com.gonali.crawlerTask.model.TaskModel;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -13,7 +12,7 @@ import java.io.ObjectOutputStream;
  */
 public class ObjectSerializeUtils {
 
-    public  static byte[] serializeToBytes(EntityModel model){
+    public static byte[] serializeToBytes(EntityModel model) {
 
         ObjectOutputStream oos = null;
         ByteArrayOutputStream baos = null;
@@ -34,7 +33,7 @@ public class ObjectSerializeUtils {
     }
 
 
-    public static Object getEntityFromBytes(byte [] bytes) {
+    public static Object getEntityFromBytes(byte[] bytes) {
 
         ByteArrayInputStream bais = null;
         try {

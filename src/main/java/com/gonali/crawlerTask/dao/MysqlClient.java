@@ -1,6 +1,6 @@
 package com.gonali.crawlerTask.dao;
 
-import com.gonali.crawlerTask.model.TaskModel;
+import com.gonali.crawlerTask.model.EntityModel;
 import com.gonali.crawlerTask.utils.ConfigUtils;
 import com.gonali.crawlerTask.utils.LoggerUtil;
 import com.gonali.crawlerTask.utils.MySqlPoolUtils;
@@ -72,42 +72,85 @@ public class MysqlClient extends LoggerUtil {
         }
     }
 
-    public int insert(String tableName, TaskModel taskModel){
+    public int insert(String tableName, EntityModel model) {
+
+        if (getConnection() == null)
+            return 0;
+        int ret = 0;
+        try {
+
+            myStatement = connection.createStatement();
+            String sql = model.insertSqlBuilder(tableName, model);
+
+            ret = myStatement.executeUpdate(sql);
+
+            return ret;
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+
+        } finally {
+
+            closeConnection();
+        }
 
         return 0;
     }
 
-    public int update(String tableName, TaskModel taskModel){
+    public int update(String tableName, EntityModel model) {
+
+
+        if (getConnection() == null)
+            return 0;
+        int ret = 0;
+        try {
+
+            myStatement = connection.createStatement();
+            String sql = model.updateSqlBuilder(tableName, model);
+
+            ret = myStatement.executeUpdate(sql);
+
+            return ret;
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+
+        } finally {
+
+            closeConnection();
+        }
 
         return 0;
     }
 
-    public int delete(String tableName, TaskModel taskModel){
+
+    public int delete(String tableName, EntityModel model) {
 
         return 0;
     }
 
-    public TaskModel selectByUserId(String tableName, String userId){
+
+    public EntityModel selectByUserId(String tableName, String userId) {
 
         return null;
     }
 
-    public TaskModel selectByTaskId(String tableName, String taskId){
+    public EntityModel selectByTaskId(String tableName, String taskId) {
 
         return null;
     }
 
-    public TaskModel selectByPrimaryKey(String tableName, String taskId, String userId){
+    public EntityModel selectByPrimaryKey(String tableName, String taskId, String userId) {
 
         return null;
     }
 
-    public List<TaskModel> selectWhere(String tableName, String whereStatement){
+    public List<EntityModel> selectWhere(String tableName, String whereStatement) {
 
         return null;
     }
 
-    public List<TaskModel> selectAll(String tableName){
+    public List<EntityModel> selectAll(String tableName) {
 
         return null;
     }

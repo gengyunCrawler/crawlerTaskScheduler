@@ -1,10 +1,8 @@
 package com.gonali.crawlerTask.taskQueue;
 
-import com.alibaba.fastjson.JSON;
 import com.gonali.crawlerTask.model.TaskModel;
 import com.gonali.crawlerTask.utils.JedisPoolUtils;
 import com.gonali.crawlerTask.utils.ObjectSerializeUtils;
-import com.sun.xml.internal.messaging.saaj.util.ByteInputStream;
 import redis.clients.jedis.Jedis;
 
 /**
@@ -25,7 +23,7 @@ public class TaskQueue {
 
         try {
 
-           byte[] bytes = ObjectSerializeUtils.serializeToBytes(taskModel);
+            byte[] bytes = ObjectSerializeUtils.serializeToBytes(taskModel);
             jedis = JedisPoolUtils.getJedis();
             jedis.lpush(QUEUE_KEY.getBytes(), bytes);
 
@@ -50,7 +48,7 @@ public class TaskQueue {
             byte[] bytes = jedis.rpop(QUEUE_KEY.getBytes());
             if (bytes == null)
                 return null;
-            TaskModel taskModel = (TaskModel)ObjectSerializeUtils.getEntityFromBytes(bytes);
+            TaskModel taskModel = (TaskModel) ObjectSerializeUtils.getEntityFromBytes(bytes);
 
             return taskModel;
 

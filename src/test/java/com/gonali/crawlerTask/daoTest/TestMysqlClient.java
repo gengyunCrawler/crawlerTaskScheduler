@@ -1,25 +1,26 @@
-package com.gonali.crawlerTask.modelTest;
+package com.gonali.crawlerTask.daoTest;
 
+import com.gonali.crawlerTask.dao.MysqlClient;
 import com.gonali.crawlerTask.model.*;
-import com.gonali.crawlerTask.utils.ObjectSerializeUtils;
+
+import java.util.Date;
 
 /**
  * Created by TianyuanPan on 6/2/16.
  */
-public class TestTaskModel {
+public class TestMysqlClient {
 
-    static TaskModel taskModel;
-
+    static MysqlClient client;
 
     public static void main(String[] args) {
-
 
         TaskUserModel taskUser = new TaskUserModel();
         taskUser.setUserId("123");
         taskUser.setUserDescription("fadsfadfad");
         taskUser.setUserAppkey("dfasdafdafads");
 
-        taskModel = new TaskModel();
+        TaskModel taskModel = new TaskModel();
+        taskModel.setTaskId("tid-" + new Date().getTime());
         taskModel.setTaskCrawlerAmountInfo(new TaskCrawlerAmountInfoModel("[\n" +
                 "\n" +
                 "  {\"times\":0, \"amount\": 512},\n" +
@@ -36,24 +37,12 @@ public class TestTaskModel {
                 "  \"seedUrl 4\"\n" +
                 "]"));
         taskModel.setTaskUser(taskUser);
-        String s = taskModel.insertSqlBuilder("crawlerTaskTable", taskModel);
-        System.out.println(s);
 
-        taskModel.setTaskId("aaaaaa");
-        s = taskModel.updateSqlBuilder("crawlerTaskTable", taskModel);
+        client = new MysqlClient();
 
-        System.out.println(s);
+        int ret = client.insert("crawlerTaskTable", taskModel);
 
-
-
-            byte[] bytes = ObjectSerializeUtils.serializeToBytes(taskModel);
-
-            System.out.println(bytes);
-
-            TaskModel model1 = (TaskModel)ObjectSerializeUtils.getEntityFromBytes(bytes);
-            System.out.println(model1.insertSqlBuilder("table", model1));
-
+        System.out.println("insert return code: " + ret);
     }
-
 
 }
