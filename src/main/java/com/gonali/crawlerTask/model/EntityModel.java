@@ -7,6 +7,7 @@ import java.io.Serializable;
  */
 public interface EntityModel extends Serializable {
 
+    public String getPrimaryKey();
 
     public String insertSqlBuilder(String tableName, EntityModel model);
 

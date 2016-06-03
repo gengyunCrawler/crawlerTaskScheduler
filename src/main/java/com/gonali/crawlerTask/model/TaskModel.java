@@ -277,6 +277,12 @@ public class TaskModel implements EntityModel {
     }
 
 
+    @Override
+    public String getPrimaryKey() {
+        return this.taskId;
+    }
+
+    @Override
     public String insertSqlBuilder(String tableName, EntityModel taskModel) {
 
         String values = "'" + ((TaskModel) taskModel).getUserId() + "'," +
@@ -318,6 +324,7 @@ public class TaskModel implements EntityModel {
         return sql;
     }
 
+    @Override
     public String updateSqlBuilder(String tableName, EntityModel taskModel) {
 
         String sql = "UPDATE  " + tableName + "  " +
@@ -349,6 +356,7 @@ public class TaskModel implements EntityModel {
         return sql;
     }
 
+    @Override
     public String subUpdateSqlBuilder(String tableName, EntityModel model, String... fields) {
         return null;
     }

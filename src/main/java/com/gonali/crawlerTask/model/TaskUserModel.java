@@ -44,6 +44,11 @@ public class TaskUserModel implements EntityModel {
     }
 
 
+    @Override
+    public String getPrimaryKey() {
+        return this.userId;
+    }
+
     public String insertSqlBuilder(String tableName, EntityModel model) {
         return null;
     }
