@@ -1,75 +1,149 @@
 package com.gonali.crawlerTask.model;
 
+import com.alibaba.fastjson.JSON;
+
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by TianyuanPan on 6/2/16.
  */
 public class TaskCrawlerInstanceInfoModel implements Serializable {
 
-    private List<String> nodeHosts;
-    private Map<String, Long> nodeHeartbeat;
-    private Map<String, TaskStatus> nodeStatus;
-    private Map<String, List<Integer>> nodePid;
+    private List<InstanceInfo> instanceInfoList;
+
+
+    private class InstanceInfo {
+
+        private String host = "";
+        private int pid;
+        private TaskStatus taskStatus;
+
+        public InstanceInfo() {
+
+            host = "0.0.0.0";
+            pid = -1;
+            taskStatus = TaskStatus.UNCRAWL;
+        }
+
+        public InstanceInfo(String host, int pid, TaskStatus taskStatus) {
+
+            this.host = host;
+            this.pid = pid;
+            this.taskStatus = taskStatus;
+
+        }
+
+        public String getHost() {
+            return host;
+        }
+
+        public InstanceInfo setHost(String host) {
+            this.host = host;
+            return this;
+        }
+
+        public int getPid() {
+            return pid;
+        }
+
+        public InstanceInfo setPid(int pid) {
+            this.pid = pid;
+            return this;
+        }
+
+        public TaskStatus getTaskStatus() {
+            return taskStatus;
+        }
+
+        public InstanceInfo setTaskStatus(TaskStatus taskStatus) {
+            this.taskStatus = taskStatus;
+            return this;
+        }
+
+    }
+
 
     public TaskCrawlerInstanceInfoModel() {
 
-        nodeHosts = new ArrayList<String>();
-        nodeHeartbeat = new HashMap<String, Long>();
-        nodeStatus = new HashMap<String, TaskStatus>();
+        instanceInfoList = new ArrayList<InstanceInfo>();
     }
 
-    public void setNodeHosts(String... hosts) {
+    public TaskCrawlerInstanceInfoModel addInstance(String host, int pid, TaskStatus taskStatus) {
 
-        for (int i = 0; i < hosts.length; ++i)
-            nodeHosts.add(hosts[i]);
+        this.instanceInfoList.add(new InstanceInfo(host, pid, taskStatus));
 
+        return this;
     }
 
-    public void setNodeHeartbeat(String hostname) {
+    public TaskCrawlerInstanceInfoModel removeInstance(String host, int pid) {
 
-        if (!nodeHosts.contains(hostname))
-            return;
-        nodeHeartbeat.put(hostname, new Date().getTime());
+        int size = instanceInfoList.size();
+        for (int i = 0; i < size; ++i) {
+
+            InstanceInfo instanceInfo = instanceInfoList.get(i);
+
+            if (instanceInfo.getPid() == pid &&
+                    instanceInfo.getHost().equals(host)) {
+                instanceInfoList.remove(i);
+                break;
+            }
+        }
+
+        return this;
     }
 
-    public void setNodeStatus(String hostname, TaskStatus taskStatus) {
 
-        if (!nodeHosts.contains(hostname))
-            return;
+    public TaskCrawlerInstanceInfoModel setInstance(String host, int pid, TaskStatus taskStatus) {
 
-        nodeStatus.put(hostname, taskStatus);
+        int size = instanceInfoList.size();
+        for (int i = 0; i < size; ++i) {
+
+            InstanceInfo instanceInfo = instanceInfoList.get(i);
+
+            if (instanceInfo.getPid() == pid &&
+                    instanceInfo.getHost().equals(host)) {
+                instanceInfoList.get(i).setHost(host)
+                        .setPid(pid).setTaskStatus(taskStatus);
+                break;
+            }
+        }
+
+        return this;
     }
 
-    public List<String> getNodeHosts() {
 
-        return nodeHosts;
+    public String getCrawlerInstanceInfoJsonString() {
+
+        String jsonString;
+
+        try {
+
+            jsonString = JSON.toJSONString(this.instanceInfoList);
+
+            return jsonString;
+
+        } catch (Exception ex) {
+
+            ex.printStackTrace();
+        }
+
+        return null;
     }
 
-    public long getHostheartbeat(String hostname) {
+    public TaskCrawlerInstanceInfoModel setCrawlerInstanceInfo(String jsonString) {
 
-        return nodeHeartbeat.get(hostname);
-    }
+        try {
 
-    public Map<String, Long> getHostheartbeat() {
+            this.instanceInfoList = JSON.parseObject(jsonString, List.class);
 
-        return this.nodeHeartbeat;
-    }
+        }catch (Exception ex){
 
-    public TaskStatus getNodeStatus(String hostname) {
+            ex.printStackTrace();
+        }
 
-        return nodeStatus.get(hostname);
-    }
-
-    public Map<String, TaskStatus> getNodeStatus() {
-
-        return this.nodeStatus;
-    }
-
-    public String getCrawlerInstanceInfoJsonString(){
-
-        return "123";
+        return this;
     }
 
 }

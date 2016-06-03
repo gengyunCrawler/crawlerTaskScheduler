@@ -3,6 +3,8 @@ package com.gonali.crawlerTask.modelTest;
 import com.gonali.crawlerTask.model.*;
 import com.gonali.crawlerTask.utils.ObjectSerializeUtils;
 
+import java.lang.reflect.Field;
+
 /**
  * Created by TianyuanPan on 6/2/16.
  */
@@ -43,7 +45,6 @@ public class TestTaskModel {
         s = taskModel.updateSqlBuilder("crawlerTaskTable", taskModel);
 
         System.out.println(s);
-
 
 
             byte[] bytes = ObjectSerializeUtils.serializeToBytes(taskModel);

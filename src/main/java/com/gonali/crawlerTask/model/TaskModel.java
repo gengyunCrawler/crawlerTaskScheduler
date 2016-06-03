@@ -24,7 +24,8 @@ public class TaskModel implements EntityModel {
     private int taskSeedAmount;
     private int taskSeedImportAmount;
     private int taskCompleteTimes;
-    private int taskNodeThread;
+    private int taskInstanceThreads;
+    private int taskNodeInstances;
     private long taskStopTime;
     private TaskCrawlerAmountInfoModel taskCrawlerAmountInfo;
     private TaskCrawlerInstanceInfoModel taskCrawlerInstanceInfo;
@@ -37,7 +38,7 @@ public class TaskModel implements EntityModel {
         this.taskDeleteFlag = false;
         this.taskType = TaskType.UNSET;
         this.taskStatus = TaskStatus.UNCRAWL;
-        this.taskNodeThread = 1;
+        this.taskInstanceThreads = 1;
     }
 
     public TaskModel(String taskId, String userId) {
@@ -47,7 +48,7 @@ public class TaskModel implements EntityModel {
         this.taskDeleteFlag = false;
         this.taskType = TaskType.UNSET;
         this.taskStatus = TaskStatus.UNCRAWL;
-        this.taskNodeThread = 1;
+        this.taskInstanceThreads = 1;
     }
 
 
@@ -227,12 +228,20 @@ public class TaskModel implements EntityModel {
         this.taskCompleteTimes = taskCompleteTimes;
     }
 
-    public int getTaskNodeThread() {
-        return taskNodeThread;
+    public int getTaskInstanceThreads() {
+        return taskInstanceThreads;
     }
 
-    public void setTaskNodeThread(int taskNodeThread) {
-        this.taskNodeThread = taskNodeThread;
+    public int getTaskNodeInstances() {
+        return taskNodeInstances;
+    }
+
+    public void setTaskNodeInstances(int taskNodeInstances) {
+        this.taskNodeInstances = taskNodeInstances;
+    }
+
+    public void setTaskInstanceThreads(int taskInstanceThreads) {
+        this.taskInstanceThreads = taskInstanceThreads;
     }
 
     public long getTaskStopTime() {
@@ -290,7 +299,7 @@ public class TaskModel implements EntityModel {
                 ((TaskModel) taskModel).getTaskSeedAmount() + "," +
                 ((TaskModel) taskModel).getTaskSeedImportAmount() + "," +
                 ((TaskModel) taskModel).getTaskCompleteTimes() + "," +
-                ((TaskModel) taskModel).getTaskNodeThread() + "," +
+                ((TaskModel) taskModel).getTaskInstanceThreads() + "," +
                 ((TaskModel) taskModel).getTaskStopTime() + "," +
                 "'" + ((TaskModel) taskModel).getTaskCrawlerAmountInfo().getCrawlerAmountInfoJsonString() + "'," +
                 "'" + ((TaskModel) taskModel).getTaskCrawlerInstanceInfo().getCrawlerInstanceInfoJsonString() + "'";
@@ -303,7 +312,7 @@ public class TaskModel implements EntityModel {
                 " taskRecrawlerDays, taskTemplatePath, taskTagPath, " +
                 " taskProtocolFilter, taskSuffixFilter, taskRegexFilter, " +
                 " taskStatus, taskDeleteFlag, taskSeedAmount, taskSeedImportAmount, " +
-                " taskCompleteTimes, taskNodeThread, taskStopTime, " +
+                " taskCompleteTimes, taskInstanceThreads, taskStopTime, " +
                 " taskCrawlerAmountInfo, taskCrawlerInstanceInfo) VALUES (" + values + ")";
 
         return sql;
@@ -331,7 +340,7 @@ public class TaskModel implements EntityModel {
                 " taskSeedAmount = " + ((TaskModel) taskModel).getTaskSeedAmount() + "," +
                 " taskSeedImportAmount = " + ((TaskModel) taskModel).getTaskSeedImportAmount() + "," +
                 " taskCompleteTimes = " + ((TaskModel) taskModel).getTaskCompleteTimes() + "," +
-                " taskNodeThread = " + ((TaskModel) taskModel).getTaskNodeThread() + "," +
+                " taskInstanceThreads = " + ((TaskModel) taskModel).getTaskInstanceThreads() + "," +
                 " taskStopTime = " + ((TaskModel) taskModel).getTaskStopTime() + "," +
                 " taskCrawlerAmountInfo = " + "'" + ((TaskModel) taskModel).getTaskCrawlerAmountInfo().getCrawlerAmountInfoJsonString() + "'," +
                 " taskCrawlerInstanceInfo =  " + "'" + ((TaskModel) taskModel).getTaskCrawlerInstanceInfo().getCrawlerInstanceInfoJsonString() + "'   " +
@@ -340,7 +349,9 @@ public class TaskModel implements EntityModel {
         return sql;
     }
 
-
+    public String subUpdateSqlBuilder(String tableName, EntityModel model, String... fields) {
+        return null;
+    }
 
 
 }

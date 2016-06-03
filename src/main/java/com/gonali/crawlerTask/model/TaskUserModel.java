@@ -51,4 +51,8 @@ public class TaskUserModel implements EntityModel {
     public String updateSqlBuilder(String tableName, EntityModel model) {
         return null;
     }
+
+    public String subUpdateSqlBuilder(String tableName, EntityModel model, String... fields) {
+        return null;
+    }
 }

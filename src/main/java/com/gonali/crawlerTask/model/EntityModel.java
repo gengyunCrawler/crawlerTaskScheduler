@@ -12,4 +12,6 @@ public interface EntityModel extends Serializable {
 
     public String updateSqlBuilder(String tableName, EntityModel model);
 
+    public String subUpdateSqlBuilder(String tableName, EntityModel model, String ... fields);
+
 }

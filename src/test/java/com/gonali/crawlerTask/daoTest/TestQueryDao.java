@@ -1,6 +1,5 @@
 package com.gonali.crawlerTask.daoTest;
 
-import com.gonali.crawlerTask.dao.MysqlClient;
 import com.gonali.crawlerTask.model.*;
 
 import java.util.Date;
@@ -8,9 +7,9 @@ import java.util.Date;
 /**
  * Created by TianyuanPan on 6/2/16.
  */
-public class TestMysqlClient {
+public class TestQueryDao {
 
-    static MysqlClient client;
+//    static MysqlClient client;
 
     public static void main(String[] args) {
 
@@ -37,12 +36,13 @@ public class TestMysqlClient {
                 "  \"seedUrl 4\"\n" +
                 "]"));
         taskModel.setTaskUser(taskUser);
+//
+//        client = new MysqlClient();
+//        client.selectByUserId("crawlerTaskUserTable", "123");
 
-        client = new MysqlClient();
-
-        int ret = client.insert("crawlerTaskTable", taskModel);
-
-        System.out.println("insert return code: " + ret);
+//        int ret = client.insert("crawlerTaskTable", taskModel);
+//
+//        System.out.println("insert return code: " + ret);
     }
 
 }
