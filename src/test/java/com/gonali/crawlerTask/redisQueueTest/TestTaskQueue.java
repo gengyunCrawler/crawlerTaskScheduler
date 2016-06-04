@@ -1,8 +1,8 @@
-package com.gonali.crawlerTask.taskQueueTest;
+package com.gonali.crawlerTask.redisQueueTest;
 
 import com.alibaba.fastjson.JSON;
 import com.gonali.crawlerTask.model.*;
-import com.gonali.crawlerTask.taskQueue.TaskQueue;
+import com.gonali.crawlerTask.redisQueue.TaskQueue;
 
 import java.util.ArrayList;
 import java.util.Date;

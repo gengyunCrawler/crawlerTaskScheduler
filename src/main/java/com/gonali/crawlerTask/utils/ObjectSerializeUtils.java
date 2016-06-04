@@ -12,7 +12,7 @@ import java.io.ObjectOutputStream;
  */
 public class ObjectSerializeUtils {
 
-    public static byte[] serializeToBytes(EntityModel model) {
+    public static byte[] serializeToBytes(Object model) {
 
         ObjectOutputStream oos = null;
         ByteArrayOutputStream baos = null;

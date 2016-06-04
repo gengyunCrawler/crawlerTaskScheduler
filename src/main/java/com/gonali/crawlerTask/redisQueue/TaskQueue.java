@@ -1,4 +1,4 @@
-package com.gonali.crawlerTask.taskQueue;
+package com.gonali.crawlerTask.redisQueue;
 
 import com.gonali.crawlerTask.model.TaskModel;
 import com.gonali.crawlerTask.utils.JedisPoolUtils;
@@ -10,7 +10,6 @@ import redis.clients.jedis.Jedis;
  */
 public class TaskQueue {
 
-    private static final String QUEUE_KEY = "crawlerTask::taskQueue";
 
     private TaskQueue() {
 
@@ -25,7 +24,7 @@ public class TaskQueue {
 
             byte[] bytes = ObjectSerializeUtils.serializeToBytes(taskModel);
             jedis = JedisPoolUtils.getJedis();
-            jedis.lpush(QUEUE_KEY.getBytes(), bytes);
+            jedis.lpush(QueueKeys.QUEUE_KEY_TASK.getBytes(), bytes);
 
         } catch (Exception ex) {
 
@@ -45,7 +44,7 @@ public class TaskQueue {
         try {
 
             jedis = JedisPoolUtils.getJedis();
-            byte[] bytes = jedis.rpop(QUEUE_KEY.getBytes());
+            byte[] bytes = jedis.rpop(QueueKeys.QUEUE_KEY_TASK.getBytes());
             if (bytes == null)
                 return null;
             TaskModel taskModel = (TaskModel) ObjectSerializeUtils.getEntityFromBytes(bytes);
