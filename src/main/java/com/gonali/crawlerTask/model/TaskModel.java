@@ -306,6 +306,7 @@ public class TaskModel implements EntityModel {
                 ((TaskModel) taskModel).getTaskSeedImportAmount() + "," +
                 ((TaskModel) taskModel).getTaskCompleteTimes() + "," +
                 ((TaskModel) taskModel).getTaskInstanceThreads() + "," +
+                ((TaskModel) taskModel).getTaskNodeInstances() + "," +
                 ((TaskModel) taskModel).getTaskStopTime() + "," +
                 "'" + ((TaskModel) taskModel).getTaskCrawlerAmountInfo().getCrawlerAmountInfoJsonString() + "'," +
                 "'" + ((TaskModel) taskModel).getTaskCrawlerInstanceInfo().getCrawlerInstanceInfoJsonString() + "'";
@@ -318,7 +319,7 @@ public class TaskModel implements EntityModel {
                 " taskRecrawlerDays, taskTemplatePath, taskTagPath, " +
                 " taskProtocolFilter, taskSuffixFilter, taskRegexFilter, " +
                 " taskStatus, taskDeleteFlag, taskSeedAmount, taskSeedImportAmount, " +
-                " taskCompleteTimes, taskInstanceThreads, taskStopTime, " +
+                " taskCompleteTimes, taskInstanceThreads, taskNodeInstances, taskStopTime, " +
                 " taskCrawlerAmountInfo, taskCrawlerInstanceInfo) VALUES (" + values + ")";
 
         return sql;
@@ -348,6 +349,7 @@ public class TaskModel implements EntityModel {
                 " taskSeedImportAmount = " + ((TaskModel) taskModel).getTaskSeedImportAmount() + "," +
                 " taskCompleteTimes = " + ((TaskModel) taskModel).getTaskCompleteTimes() + "," +
                 " taskInstanceThreads = " + ((TaskModel) taskModel).getTaskInstanceThreads() + "," +
+                " taskNodeInstances = " + ((TaskModel) taskModel).getTaskNodeInstances()  + "," +
                 " taskStopTime = " + ((TaskModel) taskModel).getTaskStopTime() + "," +
                 " taskCrawlerAmountInfo = " + "'" + ((TaskModel) taskModel).getTaskCrawlerAmountInfo().getCrawlerAmountInfoJsonString() + "'," +
                 " taskCrawlerInstanceInfo =  " + "'" + ((TaskModel) taskModel).getTaskCrawlerInstanceInfo().getCrawlerInstanceInfoJsonString() + "'   " +

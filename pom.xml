@@ -51,6 +51,15 @@
             <version>1.2.7</version>
         </dependency>
 
+        <!-- http://mvnrepository.com/artifact/com.jcraft/jsch -->
+        <!-- ssh login utils -->
+        <dependency>
+            <groupId>com.jcraft</groupId>
+            <artifactId>jsch</artifactId>
+            <version>0.1.53</version>
+        </dependency>
+
+
         <!-- logger -->
         <dependency>
             <groupId>log4j</groupId>
@@ -62,6 +71,7 @@
             <artifactId>slf4j-api</artifactId>
             <version>1.7.6</version>
         </dependency>
+
 
 
     </dependencies>
