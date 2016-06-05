@@ -16,6 +16,7 @@ public class TaskModel implements EntityModel {
     private int taskRecrawlerDays;
     private String taskTemplatePath = "";
     private String taskTagPath = "";
+    private String taskSeedPath = "";
     private String taskProtocolFilter = "";
     private String taskSuffixFilter = "";
     private String taskRegexFilter = "";
@@ -162,6 +163,14 @@ public class TaskModel implements EntityModel {
 
     public void setTaskTagPath(String taskTagPath) {
         this.taskTagPath = taskTagPath;
+    }
+
+    public String getTaskSeedPath() {
+        return taskSeedPath;
+    }
+
+    public void setTaskSeedPath(String taskSeedPath) {
+        this.taskSeedPath = taskSeedPath;
     }
 
     public String getTaskProtocolFilter() {

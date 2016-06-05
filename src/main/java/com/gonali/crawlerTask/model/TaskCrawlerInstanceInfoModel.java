@@ -138,7 +138,7 @@ public class TaskCrawlerInstanceInfoModel implements Serializable {
 
             this.instanceInfoList = JSON.parseObject(jsonString, List.class);
 
-        }catch (Exception ex){
+        } catch (Exception ex) {
 
             ex.printStackTrace();
         }

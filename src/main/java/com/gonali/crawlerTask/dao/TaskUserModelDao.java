@@ -11,12 +11,12 @@ import java.util.List;
 /**
  * Created by TianyuanPan on 6/3/16.
  */
-public class TaskUserModeDao extends LoggerUtil implements QueryDao {
+public class TaskUserModelDao extends LoggerUtil implements QueryDao {
 
 
     private MysqlClient mysqlClient;
 
-    public TaskUserModeDao() {
+    public TaskUserModelDao() {
 
         mysqlClient = new MysqlClient();
     }

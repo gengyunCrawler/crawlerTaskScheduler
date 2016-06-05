@@ -24,8 +24,8 @@ public class TestShellUtils {
 
 
         try {
-/*
 
+/*
             shell.openPerformShell();
             while (true) {
 
@@ -71,8 +71,8 @@ public class TestShellUtils {
             in.close();
 
             shell.closePerformShell();
-
 */
+
 
 
             while (true) {

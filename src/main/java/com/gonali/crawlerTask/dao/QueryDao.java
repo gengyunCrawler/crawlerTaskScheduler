@@ -15,11 +15,7 @@ public interface QueryDao {
 
     public int delete(String tableName, EntityModel model);
 
-
-    public List<EntityModel> selectByUserId(String tableName, String userId);/* {
-
-
-    }*/
+    public List<EntityModel> selectByUserId(String tableName, String userId);
 
     public EntityModel selectByTaskId(String tableName, String taskId);
 

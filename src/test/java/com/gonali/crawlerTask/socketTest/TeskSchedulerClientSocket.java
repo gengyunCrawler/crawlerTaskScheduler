@@ -13,7 +13,7 @@ public class TeskSchedulerClientSocket {
 
     public static void main(String[] args) {
 
-        SchedulerClientSocket.getClientSocket("127.0.0.1", 10080)
+        SchedulerClientSocket.getClientSocket("127.0.0.1", 10090)
                 .registerHandler(new ClientConsoleHandler())
                 .doAction();
 

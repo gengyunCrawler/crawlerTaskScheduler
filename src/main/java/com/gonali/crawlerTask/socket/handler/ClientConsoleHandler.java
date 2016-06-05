@@ -11,11 +11,11 @@ import java.net.Socket;
 public class ClientConsoleHandler implements SocketHandler {
 
     BufferedReader in;
-    PrintWriter    out;
-    char[]  charBuffer;
+    PrintWriter out;
+    char[] charBuffer;
     String ioString;
 
-    public ClientConsoleHandler(){
+    public ClientConsoleHandler() {
 
         charBuffer = new char[65536];
     }
@@ -28,7 +28,11 @@ public class ClientConsoleHandler implements SocketHandler {
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             out = new PrintWriter(socket.getOutputStream(), true);
 
-            String message = "Hello Server !!";
+
+            System.out.printf("InputMsg >> ");
+
+            String message = new BufferedReader(new InputStreamReader(System.in)).readLine();
+
 
             System.out.println("==============================================");
             System.out.println("Send message to server:\n\t" + message);
@@ -36,22 +40,23 @@ public class ClientConsoleHandler implements SocketHandler {
             out.println(message);
             out.flush();
             int size = in.read(charBuffer, 0, 65536);
-            if (size > 0){
+            if (size > 0) {
                 ioString = new String(charBuffer);
                 ioString = ioString.substring(0, size);
                 System.out.println("++++++++++++++++++++++++++++++++++++++++++++");
-                System.out.println("Back message from server:\n\t" + ioString );
+                System.out.println("Back message from server:\n\t" + ioString);
             }
 
-        }catch (Exception ex){
 
-        }finally {
+        } catch (Exception ex) {
+
+        } finally {
 
             try {
 
                 socket.close();
 
-            }catch (Exception ex){
+            } catch (Exception ex) {
 
                 ex.printStackTrace();
             }

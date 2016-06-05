@@ -40,18 +40,20 @@ public class HeartbeatHandler extends LoggerUtil implements SocketHandler {
         mySocket = socket;
         int readCharSize;
         charBuffer = new char[charBufferSize];
+        jsonString = "";
         try {
 
             in = new BufferedReader(new InputStreamReader(mySocket.getInputStream()));
             out = new PrintWriter(mySocket.getOutputStream(), true);
-            readCharSize = in.read(charBuffer, 0, charBufferSize);
-            jsonString = new String(charBuffer);
-            if (readCharSize > 0) {
-                jsonString = jsonString.substring(0, readCharSize);
+
+            while ((readCharSize = in.read(charBuffer, 0, charBufferSize)) > 0) {
+
+                jsonString += new String(charBuffer, 0, readCharSize);
+
                 System.out.println("Server Received:\n=================\n" + jsonString + "\n=================\n");
                 out.println(HandlerMessage.getMessage("confirm", true));
-            } else {
-                out.println(HandlerMessage.getMessage("read message is NULL !", false));
+
+
             }
             out.flush();
             out.close();

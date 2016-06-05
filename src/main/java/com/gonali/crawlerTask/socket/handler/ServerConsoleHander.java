@@ -1,5 +1,7 @@
 package com.gonali.crawlerTask.socket.handler;
 
+import com.gonali.crawlerTask.message.HandlerMessage;
+
 import java.io.*;
 import java.net.Socket;
 
@@ -19,21 +21,22 @@ public class ServerConsoleHander implements SocketHandler {
 
         mySocket = socket;
         char[] str = new char[65536];
-        int size;
+        int readCharSize;
 
         try {
 
             in = new BufferedReader(new InputStreamReader(mySocket.getInputStream()));
             out = new PrintWriter(mySocket.getOutputStream(), true);
-            size = in.read(str, 0, 65536);
+
             ioString = new String(str);
-            if (size > 0) {
-                ioString = ioString.substring(0, size);
-                System.out.println("========================================");
-                System.out.println("Server Received:\n\t" + ioString);
-                out.println("Server Received your Message!");
-            }else {
-                out.println("Server Can not Received your Message!");
+            while ((readCharSize = in.read(str, 0, 65536)) > 0) {
+
+                ioString += new String(str, 0, readCharSize);
+
+                System.out.println("Server Received:\n=================\n" + ioString + "\n=================\n");
+                out.println(HandlerMessage.getMessage("confirm", true));
+
+
             }
             out.close();
             out.flush();

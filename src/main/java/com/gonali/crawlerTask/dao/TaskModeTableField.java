@@ -18,6 +18,7 @@ public class TaskModeTableField {
     public static final String taskRecrawlerDays = "taskRecrawlerDays";
     public static final String taskTemplatePath = "taskTemplatePath";
     public static final String taskTagPath = "taskTagPath";
+    public static final String taskSeedPath = "taskSeedPath";
     public static final String taskProtocolFilter = "taskProtocolFilter";
     public static final String taskSuffixFilter = "taskSuffixFilter";
     public static final String taskRegexFilter = "taskRegexFilter";

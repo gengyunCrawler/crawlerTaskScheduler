@@ -22,6 +22,7 @@ CREATE TABLE crawlerTaskTable
   taskRecrawlerDays INT,
   taskTemplatePath TEXT,
   taskTagPath TEXT,
+  taskSeedPath TEXT,
   taskProtocolFilter TEXT,
   taskSuffixFilter TEXT,
   taskRegexFilter TEXT,
