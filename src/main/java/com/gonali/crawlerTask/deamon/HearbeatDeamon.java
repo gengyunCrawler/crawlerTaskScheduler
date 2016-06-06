@@ -23,7 +23,7 @@ public class HearbeatDeamon implements Runnable{
         try {
 
             bindAddress = InetAddress.getByName(ConfigUtils.getResourceBundle().getString("HEARTBEAT_SERVER_BINDING_ADDRESS"));
-            port = Integer.parseInt(ConfigUtils.getResourceBundle().getString("HEARTBEAT_SERVER_LINSTENING_PORT"));
+            port = Integer.parseInt(ConfigUtils.getResourceBundle().getString("HEARTBEAT_SERVER_LISTENING_PORT"));
             threadPoolSize = Integer.parseInt(ConfigUtils.getResourceBundle().getString("HEARTBEAT_SERVER_THREAD_POOL_SIZE"));
 
             handler = new HeartbeatHandler();
@@ -39,7 +39,7 @@ public class HearbeatDeamon implements Runnable{
     }
 
 
-    public static HearbeatDeamon create() {
+    public static HearbeatDeamon createDeamon() {
 
         if (hearbeatDeamon == null)
             hearbeatDeamon = new HearbeatDeamon();

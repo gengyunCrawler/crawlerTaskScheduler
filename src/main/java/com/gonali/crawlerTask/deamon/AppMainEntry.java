@@ -13,7 +13,7 @@ public class AppMainEntry {
 
     static {
 
-        mainDeamon = MainDeamon.create();
+        mainDeamon = MainDeamon.createDeamon();
     }
 
 

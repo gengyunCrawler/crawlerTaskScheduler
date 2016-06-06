@@ -20,23 +20,44 @@ public class TaskScheduler {
     private TaskModelDao taskModelDao;
     private TaskModel currentTask;
     private TaskTimer taskTimer;
-    private HeartbeatUpdate heartbeatUpdate;
+    private HeartbeatUpdater heartbeatUpdater;
     private List<NodeInfo> nodeInfoList;
     private String command;
     private Ruler ruler;
 
+    public static TaskModel getSchedulerCurrentTask(){
+
+        if (scheduler == null)
+            return null;
+        return scheduler.getCurrentTask();
+    }
+
+    public static List<HeartbeatMsgModel> getSchedulerHeartbeatMsgList(){
+
+        if (scheduler == null)
+            return null;
+        return scheduler.heartbeatUpdater.getHeartbeatMsgList();
+    }
+
+    public static List<NodeInfo> getSchedulerNodeInfoList(){
+
+        if (scheduler == null)
+            return null;
+        return scheduler.getNodeInfoList();
+    }
+
 
     private TaskScheduler() {
 
-        taskModelDao = new TaskModelDao();
-        currentTask = new TaskModel();
+//        taskModelDao = new TaskModelDao();
+        currentTask = null;
         taskTimer = new TaskTimer();
-        heartbeatUpdate = new HeartbeatUpdate();
+        heartbeatUpdater = new HeartbeatUpdater();
         nodeInfoList = new ArrayList<>();
     }
 
 
-    public TaskScheduler registerRuler(Ruler ruler){
+    public TaskScheduler registerRuler(Ruler ruler) {
 
         if (ruler == null) {
             this.ruler = new SimpleLongTimeFirstRuler();
@@ -61,7 +82,7 @@ public class TaskScheduler {
     }
 
 
-    public static TaskScheduler getTaskScheduler() {
+    public static TaskScheduler createTaskScheduler() {
 
         if (scheduler == null)
             scheduler = new TaskScheduler();
@@ -71,24 +92,60 @@ public class TaskScheduler {
 
     public void schedulerStart() {
 
-        currentTask = new TaskModel();
+        new Thread(heartbeatUpdater).start();
 
-        setTaskInfo();
-        for (NodeInfo node : nodeInfoList) {
+        while (true) {
+
+            currentTask = ruler.doSchedule(this);
+
+            if (currentTask != null) {
+
+                setTaskInfo();
+
+                for (NodeInfo node : nodeInfoList) {
+
+                    try {
+
+                        System.out.println(node.nodeStart());
+                        Thread.sleep(1000);
+
+                    } catch (Exception ex) {
+
+                        ex.printStackTrace();
+                    }
+                }
+            }
 
             try {
 
-                System.out.println(node.nodeStart());
-                Thread.sleep(1000);
+                Thread.sleep(300);
 
-            } catch (Exception ex) {
+            } catch (InterruptedException e) {
 
-                ex.printStackTrace();
+                e.printStackTrace();
             }
-        }
 
-//        new Thread(heartbeatUpdate).start();
+        }
 
     }
 
+    public TaskModel getCurrentTask() {
+        return currentTask;
+    }
+
+    public List<NodeInfo> getNodeInfoList() {
+        return nodeInfoList;
+    }
+
+    public String getCommand() {
+        return command;
+    }
+
+    public Ruler getRuler() {
+        return ruler;
+    }
+
+    public HeartbeatUpdater getHeartbeatUpdater() {
+        return heartbeatUpdater;
+    }
 }

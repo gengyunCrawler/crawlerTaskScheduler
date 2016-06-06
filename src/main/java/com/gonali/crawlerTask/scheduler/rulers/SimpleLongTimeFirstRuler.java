@@ -17,6 +17,12 @@ public class SimpleLongTimeFirstRuler implements Ruler {
 
     @Override
     public TaskModel doSchedule(TaskScheduler scheduler) {
+
+        currentTask = scheduler.getCurrentTask();
+
+        if (currentTask == null)
+            return null;
+
         return null;
     }
 

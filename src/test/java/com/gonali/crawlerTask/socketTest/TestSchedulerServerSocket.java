@@ -1,6 +1,5 @@
 package com.gonali.crawlerTask.socketTest;
 
-import com.gonali.crawlerTask.handler.HeartbeatHandler;
 import com.gonali.crawlerTask.socket.SchedulerServerSocket;
 import com.gonali.crawlerTask.socket.handler.ServerConsoleHander;
 

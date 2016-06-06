@@ -15,13 +15,13 @@ public class MainDeamon {
 
     private MainDeamon(){
 
-        hearbeatDeamon = HearbeatDeamon.create();
-        taskDeamon = new TaskDeamon();
-        htmlDeamon = new HtmlDeamon();
+        hearbeatDeamon = HearbeatDeamon.createDeamon();
+        taskDeamon = TaskDeamon.createDeamon();
+        htmlDeamon = HtmlDeamon.createDeamon();
     }
 
 
-    public static MainDeamon create() {
+    public static MainDeamon createDeamon() {
 
         if (mainDeamon == null)
             mainDeamon = new MainDeamon();
@@ -33,7 +33,7 @@ public class MainDeamon {
 
 
         new Thread(this.hearbeatDeamon).start();
-        new Thread(this.taskDeamon.setRuler(ruler)).start();
+//        new Thread(this.taskDeamon.setRuler(ruler)).start();
         new Thread(this.htmlDeamon).start();
 
         System.out.println("Hi! MainDeamon");

@@ -9,7 +9,7 @@ public class TestTaskScheduler {
 
     public static void main(String[] args) {
 
-        TaskScheduler.schedulerStart();
+//        TaskScheduler.schedulerStart();
 
     }
 

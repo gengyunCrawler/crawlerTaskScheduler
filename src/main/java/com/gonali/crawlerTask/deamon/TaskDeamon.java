@@ -8,11 +8,12 @@ import com.gonali.crawlerTask.scheduler.rulers.Ruler;
  */
 public class TaskDeamon implements Runnable{
 
+    private static TaskDeamon taskDeamon;
     private TaskScheduler scheduler;
 
-    public TaskDeamon(){
+    private TaskDeamon(){
 
-        scheduler = TaskScheduler.getTaskScheduler();
+        scheduler = TaskScheduler.createTaskScheduler();
     }
 
 
@@ -26,6 +27,15 @@ public class TaskDeamon implements Runnable{
     public void run() {
 
         scheduler.schedulerStart();
+    }
+
+
+    public static TaskDeamon createDeamon(){
+
+        if (taskDeamon == null)
+            taskDeamon = new TaskDeamon();
+
+        return taskDeamon;
     }
 
 }
