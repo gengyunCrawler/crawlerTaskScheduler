@@ -22,7 +22,7 @@ public class TaskScheduler {
     private TaskTimer taskTimer;
     private HeartbeatUpdater heartbeatUpdater;
     private List<NodeInfo> nodeInfoList;
-    private String command;
+    private String command = "ls -l";
     private Ruler ruler;
 
     public static TaskModel getSchedulerCurrentTask(){
@@ -49,11 +49,11 @@ public class TaskScheduler {
 
     private TaskScheduler() {
 
-//        taskModelDao = new TaskModelDao();
+        taskModelDao = new TaskModelDao();
         currentTask = null;
         taskTimer = new TaskTimer();
         heartbeatUpdater = new HeartbeatUpdater();
-        nodeInfoList = new ArrayList<>();
+//        nodeInfoList = new ArrayList<>();
     }
 
 
@@ -71,11 +71,17 @@ public class TaskScheduler {
     private void setTaskInfo() {
 
         int nodes = Integer.parseInt(ConfigUtils.getResourceBundle("nodes").getString("NODES"));
+
         NodeInfo nodeInfo;
+
+        nodeInfoList = new ArrayList<>();
+
         for (int i = 1; i <= nodes; ++i) {
+
             String info = ConfigUtils.getResourceBundle("nodes").getString("NODE_" + i);
             String[] strings = info.split("::");
             nodeInfo = new NodeInfo(strings[0], strings[1], strings[2], command);
+
             nodeInfoList.add(nodeInfo);
         }
 

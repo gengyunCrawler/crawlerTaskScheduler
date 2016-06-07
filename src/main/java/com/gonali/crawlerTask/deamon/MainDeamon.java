@@ -13,7 +13,7 @@ public class MainDeamon {
     private HtmlDeamon htmlDeamon;
 
 
-    private MainDeamon(){
+    private MainDeamon() {
 
         hearbeatDeamon = HearbeatDeamon.createDeamon();
         taskDeamon = TaskDeamon.createDeamon();
@@ -25,16 +25,25 @@ public class MainDeamon {
 
         if (mainDeamon == null)
             mainDeamon = new MainDeamon();
+
         return mainDeamon;
 
     }
 
+
     public void appStart(Ruler ruler) {
 
 
-        new Thread(this.hearbeatDeamon).start();
-//        new Thread(this.taskDeamon.setRuler(ruler)).start();
-        new Thread(this.htmlDeamon).start();
+        Thread heartbeatDeamon = new Thread(this.hearbeatDeamon);
+        heartbeatDeamon.setDaemon(true);
+        System.out.println("HtmlDeamon Id : " + heartbeatDeamon.getId());
+        heartbeatDeamon.start();
+        new Thread(this.taskDeamon.setRuler(ruler)).start();
+        Thread htmlDeamon = new Thread(this.htmlDeamon);
+        htmlDeamon.setDaemon(true);
+        System.out.println("HtmlDeamon Id : " + htmlDeamon.getId());
+        htmlDeamon.start();
+
 
         System.out.println("Hi! MainDeamon");
     }

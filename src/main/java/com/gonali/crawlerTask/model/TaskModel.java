@@ -11,15 +11,18 @@ public class TaskModel implements EntityModel {
     private TaskSeedUrlModel taskSeedUrl;
     private int taskCrawlerDepth;
     private int taskDynamicDepth;
+    private int taskPass;
     private int taskWeight;
     private long taskStartTime;
     private int taskRecrawlerDays;
     private String taskTemplatePath = "";
     private String taskTagPath = "";
     private String taskSeedPath = "";
-    private String taskProtocolFilter = "";
-    private String taskSuffixFilter = "";
-    private String taskRegexFilter = "";
+    private String taskConfigPath = "";
+    private String taskClickRegexPath = "";
+    private String taskProtocolFilterPath = "";
+    private String taskSuffixFilterPath = "";
+    private String taskRegexFilterPath = "";
     private TaskStatus taskStatus;
     private boolean taskDeleteFlag;
     private int taskSeedAmount;
@@ -40,9 +43,16 @@ public class TaskModel implements EntityModel {
         this.taskType = TaskType.UNSET;
         this.taskStatus = TaskStatus.UNCRAWL;
         this.taskInstanceThreads = 1;
+        this.taskCrawlerAmountInfo = new TaskCrawlerAmountInfoModel();
+        this.taskCrawlerInstanceInfo = new TaskCrawlerInstanceInfoModel();
+        this.taskUser = new TaskUserModel();
     }
 
     public TaskModel(String taskId, String userId) {
+
+        this.taskCrawlerAmountInfo = new TaskCrawlerAmountInfoModel();
+        this.taskCrawlerInstanceInfo = new TaskCrawlerInstanceInfoModel();
+        this.taskUser = new TaskUserModel();
 
         this.taskId = taskId;
         this.taskUser.setUserId(userId);
@@ -125,6 +135,14 @@ public class TaskModel implements EntityModel {
         this.taskDynamicDepth = taskDynamicDepth;
     }
 
+    public int getTaskPass() {
+        return taskPass;
+    }
+
+    public void setTaskPass(int taskPass) {
+        this.taskPass = taskPass;
+    }
+
     public int getTaskWeight() {
         return taskWeight;
     }
@@ -173,28 +191,44 @@ public class TaskModel implements EntityModel {
         this.taskSeedPath = taskSeedPath;
     }
 
-    public String getTaskProtocolFilter() {
-        return taskProtocolFilter;
+    public String getTaskConfigPath() {
+        return taskConfigPath;
     }
 
-    public void setTaskProtocolFilter(String taskProtocolFilter) {
-        this.taskProtocolFilter = taskProtocolFilter;
+    public void setTaskConfigPath(String taskConfigPath) {
+        this.taskConfigPath = taskConfigPath;
     }
 
-    public String getTaskSuffixFilter() {
-        return taskSuffixFilter;
+    public String getTaskClickRegexPath() {
+        return taskClickRegexPath;
     }
 
-    public void setTaskSuffixFilter(String taskSuffixFilter) {
-        this.taskSuffixFilter = taskSuffixFilter;
+    public void setTaskClickRegexPath(String taskClickRegexPath) {
+        this.taskClickRegexPath = taskClickRegexPath;
     }
 
-    public String getTaskRegexFilter() {
-        return taskRegexFilter;
+    public String getTaskProtocolFilterPath() {
+        return taskProtocolFilterPath;
     }
 
-    public void setTaskRegexFilter(String taskRegexFilter) {
-        this.taskRegexFilter = taskRegexFilter;
+    public void setTaskProtocolFilterPath(String taskProtocolFilterPath) {
+        this.taskProtocolFilterPath = taskProtocolFilterPath;
+    }
+
+    public String getTaskSuffixFilterPath() {
+        return taskSuffixFilterPath;
+    }
+
+    public void setTaskSuffixFilterPath(String taskSuffixFilterPath) {
+        this.taskSuffixFilterPath = taskSuffixFilterPath;
+    }
+
+    public String getTaskRegexFilterPath() {
+        return taskRegexFilterPath;
+    }
+
+    public void setTaskRegexFilterPath(String taskRegexFilterPath) {
+        this.taskRegexFilterPath = taskRegexFilterPath;
     }
 
     public TaskStatus getTaskStatus() {
@@ -301,14 +335,18 @@ public class TaskModel implements EntityModel {
                 "'" + ((TaskModel) taskModel).getTaskSeedUrl().getSeedurlJsonString() + "'," +
                 ((TaskModel) taskModel).getTaskCrawlerDepth() + "," +
                 ((TaskModel) taskModel).getTaskDynamicDepth() + "," +
+                ((TaskModel) taskModel).getTaskPass() + "," +
                 ((TaskModel) taskModel).getTaskWeight() + "," +
                 ((TaskModel) taskModel).getTaskStartTime() + "," +
                 ((TaskModel) taskModel).getTaskRecrawlerDays() + "," +
                 "'" + ((TaskModel) taskModel).getTaskTemplatePath() + "'," +
                 "'" + ((TaskModel) taskModel).getTaskTagPath() + "'," +
-                "'" + ((TaskModel) taskModel).getTaskProtocolFilter() + "'," +
-                "'" + ((TaskModel) taskModel).getTaskSuffixFilter() + "'," +
-                "'" + ((TaskModel) taskModel).getTaskRegexFilter() + "'," +
+                "'" + ((TaskModel) taskModel).getTaskSeedPath() + "'," +
+                "'" + ((TaskModel) taskModel).getTaskConfigPath() + "'," +
+                "'" + ((TaskModel) taskModel).getTaskClickRegexPath() + "'," +
+                "'" + ((TaskModel) taskModel).getTaskProtocolFilterPath() + "'," +
+                "'" + ((TaskModel) taskModel).getTaskSuffixFilterPath() + "'," +
+                "'" + ((TaskModel) taskModel).getTaskRegexFilterPath() + "'," +
                 "'" + ((TaskModel) taskModel).getTaskStatus() + "'," +
                 ((TaskModel) taskModel).isTaskDeleteFlag() + "," +
                 ((TaskModel) taskModel).getTaskSeedAmount() + "," +
@@ -324,9 +362,10 @@ public class TaskModel implements EntityModel {
         String sql = "INSERT INTO " + tableName +
                 "(userId, taskId, " +
                 " taskType, taskRemark, taskSeedUrl, taskCrawlerDepth, " +
-                " taskDynamicDepth, taskWeight, taskStartTime, " +
-                " taskRecrawlerDays, taskTemplatePath, taskTagPath, " +
-                " taskProtocolFilter, taskSuffixFilter, taskRegexFilter, " +
+                " taskDynamicDepth, taskPass, taskWeight, taskStartTime, " +
+                " taskRecrawlerDays, taskTemplatePath, taskTagPath, taskSeedPath," +
+                " taskConfigPath, taskClickRegexPath, " +
+                " taskProtocolFilterPath, taskSuffixFilterPath, taskRegexFilterPath, " +
                 " taskStatus, taskDeleteFlag, taskSeedAmount, taskSeedImportAmount, " +
                 " taskCompleteTimes, taskInstanceThreads, taskNodeInstances, taskStopTime, " +
                 " taskCrawlerAmountInfo, taskCrawlerInstanceInfo) VALUES (" + values + ")";
@@ -344,14 +383,18 @@ public class TaskModel implements EntityModel {
                 " taskSeedUrl = " + "'" + ((TaskModel) taskModel).getTaskSeedUrl().getSeedurlJsonString() + "'," +
                 " taskCrawlerDepth = "+ ((TaskModel) taskModel).getTaskCrawlerDepth() + "," +
                 " taskDynamicDepth = " + ((TaskModel) taskModel).getTaskDynamicDepth() + "," +
+                " taskPass = " + ((TaskModel) taskModel).getTaskPass() + "," +
                 " taskWeight = " + ((TaskModel) taskModel).getTaskWeight() + "," +
                 " taskStartTime = " + ((TaskModel) taskModel).getTaskStartTime() + "," +
                 " taskRecrawlerDays = " + ((TaskModel) taskModel).getTaskRecrawlerDays() + "," +
                 " taskTemplatePath = " + "'" + ((TaskModel) taskModel).getTaskTemplatePath() + "'," +
                 " taskTagPath = " + "'" + ((TaskModel) taskModel).getTaskTagPath() + "'," +
-                " taskProtocolFilter = " + "'" + ((TaskModel) taskModel).getTaskProtocolFilter() + "'," +
-                " taskSuffixFilter = " + "'" + ((TaskModel) taskModel).getTaskSuffixFilter() + "'," +
-                " taskRegexFilter = " + "'" + ((TaskModel) taskModel).getTaskRegexFilter() + "'," +
+                " taskSeedPath = " + "'" + ((TaskModel) taskModel).getTaskSeedPath() + "'," +
+                " taskConfigPath = " + "'" + ((TaskModel) taskModel).getTaskConfigPath() + "'," +
+                " taskClickRegexPath = " + "'" + ((TaskModel) taskModel).getTaskClickRegexPath() + "'," +
+                " taskProtocolFilterPath = " + "'" + ((TaskModel) taskModel).getTaskProtocolFilterPath() + "'," +
+                " taskSuffixFilterPath = " + "'" + ((TaskModel) taskModel).getTaskSuffixFilterPath() + "'," +
+                " taskRegexFilterPath = " + "'" + ((TaskModel) taskModel).getTaskRegexFilterPath() + "'," +
                 " taskStatus = " + "'" + ((TaskModel) taskModel).getTaskStatus() + "'," +
                 " taskDeleteFlag = " + ((TaskModel) taskModel).isTaskDeleteFlag() + "," +
                 " taskSeedAmount = " + ((TaskModel) taskModel).getTaskSeedAmount() + "," +

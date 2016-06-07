@@ -1,18 +1,25 @@
 package com.gonali.crawlerTask.daoTest;
 
+import com.alibaba.fastjson.JSON;
+import com.gonali.crawlerTask.dao.QueryDao;
+import com.gonali.crawlerTask.dao.TaskModelDao;
+import com.gonali.crawlerTask.dao.client.MysqlClient;
 import com.gonali.crawlerTask.model.*;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by TianyuanPan on 6/2/16.
  */
 public class TestQueryDao {
 
-//    static MysqlClient client;
+    static TaskModelDao dao;
 
     public static void main(String[] args) {
 
+        dao = new TaskModelDao();
+/*
         TaskUserModel taskUser = new TaskUserModel();
         taskUser.setUserId("123");
         taskUser.setUserDescription("fadsfadfad");
@@ -36,13 +43,29 @@ public class TestQueryDao {
                 "  \"seedUrl 4\"\n" +
                 "]"));
         taskModel.setTaskUser(taskUser);
-//
-//        client = new MysqlClient();
-//        client.selectByUserId("crawlerTaskUserTable", "123");
+********/
+        //dao.insert("crawlerTaskTable", taskModel);
 
-//        int ret = client.insert("crawlerTaskTable", taskModel);
-//
-//        System.out.println("insert return code: " + ret);
+
+
+/*
+        List<EntityModel> taskModelList;
+
+        taskModelList = dao.selectAll("crawlerTaskTable");
+
+        if (taskModelList != null) {
+            System.out.println(JSON.toJSONString(taskModelList));
+        }
+*/
+
+        EntityModel model = dao.selectByTaskId("crawlerTaskTable", "tid-1465287568305");
+
+        if (model != null) {
+
+            ((TaskModel)model).setUserId("App:123456");
+
+            dao.update("crawlerTaskTable", model);
+        }
     }
 
 }

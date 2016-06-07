@@ -28,7 +28,7 @@ public class TaskModelDao extends LoggerUtil implements QueryDao {
         List<EntityModel> modelList = new ArrayList<>();
         TaskModel model;
 
-        do {
+        while (resultSet.next()) {
 
             model = new TaskModel();
 
@@ -51,14 +51,18 @@ public class TaskModelDao extends LoggerUtil implements QueryDao {
             model.setTaskSeedUrl(new TaskSeedUrlModel(resultSet.getNString(TaskModeTableField.taskSeedUrl)));
             model.setTaskCrawlerDepth(resultSet.getInt(TaskModeTableField.taskCrawlerDepth));
             model.setTaskDynamicDepth(resultSet.getInt(TaskModeTableField.taskDynamicDepth));
+            model.setTaskPass(resultSet.getInt(TaskModeTableField.taskPass));
             model.setTaskWeight(resultSet.getInt(TaskModeTableField.taskWeight));
             model.setTaskStartTime(resultSet.getLong(TaskModeTableField.taskStartTime));
             model.setTaskRecrawlerDays(resultSet.getInt(TaskModeTableField.taskRecrawlerDays));
             model.setTaskTemplatePath(resultSet.getNString(TaskModeTableField.taskTemplatePath));
             model.setTaskTagPath(resultSet.getNString(TaskModeTableField.taskTagPath));
-            model.setTaskProtocolFilter(resultSet.getNString(TaskModeTableField.taskProtocolFilter));
-            model.setTaskSuffixFilter(resultSet.getNString(TaskModeTableField.taskSuffixFilter));
-            model.setTaskRegexFilter(resultSet.getString(TaskModeTableField.taskRegexFilter));
+            model.setTaskSeedPath(resultSet.getNString(TaskModeTableField.taskSeedPath));
+            model.setTaskConfigPath(resultSet.getNString(TaskModeTableField.taskConfigPath));
+            model.setTaskClickRegexPath(resultSet.getNString(TaskModeTableField.taskClickRegexPath));
+            model.setTaskProtocolFilterPath(resultSet.getNString(TaskModeTableField.taskProtocolFilterPath));
+            model.setTaskSuffixFilterPath(resultSet.getNString(TaskModeTableField.taskSuffixFilterPath));
+            model.setTaskRegexFilterPath(resultSet.getString(TaskModeTableField.taskRegexFilterPath));
 
             switch (resultSet.getNString(TaskModeTableField.taskStatus)) {
                 case "CRAWLING":
@@ -88,7 +92,7 @@ public class TaskModelDao extends LoggerUtil implements QueryDao {
 
             modelList.add(model);
 
-        } while (resultSet.next());
+        }
 
         return modelList;
     }
@@ -212,7 +216,8 @@ public class TaskModelDao extends LoggerUtil implements QueryDao {
 
     public EntityModel selectByTaskId(String tableName, String taskId) {
 
-        String sql = "SELECT * FROM " + tableName + " WHERE " + TaskModeTableField.taskId + "'" + taskId + "'";
+        String sql = "SELECT * FROM " + tableName +
+                " WHERE " + TaskModeTableField.taskId + " = '" + taskId + "'";
         ResultSet resultSet;
         List<EntityModel> entityModelList;
 

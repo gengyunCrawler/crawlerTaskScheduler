@@ -20,8 +20,11 @@ public class SimpleLongTimeFirstRuler implements Ruler {
 
         currentTask = scheduler.getCurrentTask();
 
-        if (currentTask == null)
-            return null;
+        if (currentTask == null){
+
+            return new TaskModel("1235", "dfasdfa");
+        }
+
 
         return null;
     }
