@@ -8,5 +8,6 @@ import com.gonali.crawlerTask.scheduler.TaskScheduler;
  */
 public interface Ruler {
 
+    public void writeBack(TaskScheduler scheduler);
     public TaskModel  doSchedule(TaskScheduler scheduler);
 }

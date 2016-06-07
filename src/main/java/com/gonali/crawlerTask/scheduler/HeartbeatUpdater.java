@@ -27,7 +27,16 @@ public class HeartbeatUpdater implements Runnable {
         heartbeatMsgList = new ArrayList<>();
         messageQueue = new HeartbeatMsgQueue();
         myLock = new ReentrantLock();
-        this.checkInterval = Integer.parseInt(ConfigUtils.getResourceBundle("nodes").getString("NODES_CHECK_INTERVAL"));
+
+        try {
+
+            this.checkInterval = Integer.parseInt(ConfigUtils.getResourceBundle("nodes").getString("NODES_CHECK_INTERVAL"));
+
+        } catch (NumberFormatException e) {
+
+            e.printStackTrace();
+            this.checkInterval = 10;
+        }
     }
 
     @Override
@@ -64,8 +73,10 @@ public class HeartbeatUpdater implements Runnable {
         int msgSize = heartbeatMsgList.size();
 
         while ((message = messageQueue.popMessage()) != null) {
-            if (msgSize == 0)
+            if (msgSize == 0) {
                 heartbeatMsgList.add((HeartbeatMsgModel) message);
+                continue;
+            }
             for (int i = 0; i < msgSize; ++i)
                 if (heartbeatMsgList.get(i).getHostname().equals(
                         ((HeartbeatMsgModel) message).getHostname()) &&
@@ -80,13 +91,18 @@ public class HeartbeatUpdater implements Runnable {
     }
 
 
-    List<HeartbeatMsgModel> getHeartbeatMsgList() {
+    public  List<HeartbeatMsgModel> getHeartbeatMsgList() {
 
 
         try {
             myLock.lock();
-            List<HeartbeatMsgModel> newList = this.heartbeatMsgList;
+            List<HeartbeatMsgModel> newList = new ArrayList<>();
+
+            for (HeartbeatMsgModel msg : this.heartbeatMsgList)
+                newList.add(msg);
+
             return newList;
+
         } catch (Exception e) {
 
             e.printStackTrace();

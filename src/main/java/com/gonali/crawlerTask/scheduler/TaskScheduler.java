@@ -17,12 +17,12 @@ import java.util.List;
 public class TaskScheduler {
 
     private static volatile TaskScheduler scheduler;
-    private TaskModelDao taskModelDao;
+
     private TaskModel currentTask;
     private TaskTimer taskTimer;
     private HeartbeatUpdater heartbeatUpdater;
     private List<NodeInfo> nodeInfoList;
-    private String command = "ls -l";
+    private String command = "echo \" Hello World !! \"";
     private Ruler ruler;
 
     public static TaskModel getSchedulerCurrentTask(){
@@ -49,11 +49,9 @@ public class TaskScheduler {
 
     private TaskScheduler() {
 
-        taskModelDao = new TaskModelDao();
         currentTask = null;
         taskTimer = new TaskTimer();
         heartbeatUpdater = new HeartbeatUpdater();
-//        nodeInfoList = new ArrayList<>();
     }
 
 
@@ -102,6 +100,7 @@ public class TaskScheduler {
 
         while (true) {
 
+            ruler.writeBack(this);
             currentTask = ruler.doSchedule(this);
 
             if (currentTask != null) {
