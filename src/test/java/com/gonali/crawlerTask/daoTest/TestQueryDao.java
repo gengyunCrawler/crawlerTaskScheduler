@@ -19,7 +19,8 @@ public class TestQueryDao {
     public static void main(String[] args) {
 
         dao = new TaskModelDao();
-/*
+
+
         TaskUserModel taskUser = new TaskUserModel();
         taskUser.setUserId("123");
         taskUser.setUserDescription("fadsfadfad");
@@ -43,29 +44,28 @@ public class TestQueryDao {
                 "  \"seedUrl 4\"\n" +
                 "]"));
         taskModel.setTaskUser(taskUser);
-********/
-        //dao.insert("crawlerTaskTable", taskModel);
+
+        dao.insert("crawlerTaskTable", taskModel);
 
 
 
-/*
-        List<EntityModel> taskModelList;
+
+/*        List<EntityModel> taskModelList;
 
         taskModelList = dao.selectAll("crawlerTaskTable");
 
         if (taskModelList != null) {
             System.out.println(JSON.toJSONString(taskModelList));
-        }
-*/
+        }*/
 
-        EntityModel model = dao.selectByTaskId("crawlerTaskTable", "tid-1465287568305");
+/*        EntityModel model = dao.selectByTaskId("crawlerTaskTable", "tid-1465287568305");
 
         if (model != null) {
 
             ((TaskModel)model).setUserId("App:123456");
 
             dao.update("crawlerTaskTable", model);
-        }
+        }*/
     }
 
 }

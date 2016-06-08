@@ -8,5 +8,7 @@ public enum TaskStatus {
     UNCRAWL,
     CRAWLING,
     CRAWLED,
-    EXCEPTIOSTOP
+    EXCEPTIOSTOP,
+    NODEWAITING,
+    INQUEUE
 }

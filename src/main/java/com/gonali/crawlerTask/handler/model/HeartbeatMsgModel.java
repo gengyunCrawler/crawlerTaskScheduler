@@ -25,40 +25,45 @@ public class HeartbeatMsgModel implements Message{
         return hostname;
     }
 
-    public void setHostname(String hostname) {
+    public HeartbeatMsgModel setHostname(String hostname) {
         this.hostname = hostname;
+        return this;
     }
 
     public int getPid() {
         return pid;
     }
 
-    public void setPid(int pid) {
+    public HeartbeatMsgModel setPid(int pid) {
         this.pid = pid;
+        return this;
     }
 
     public int getTheads() {
         return theads;
     }
 
-    public void setTheads(int theads) {
+    public HeartbeatMsgModel setTheads(int theads) {
         this.theads = theads;
+        return this;
     }
 
     public long getTime() {
         return time;
     }
 
-    public void setTime(long time) {
+    public HeartbeatMsgModel setTime(long time) {
         this.time = time;
+        return this;
     }
 
     public int getStatusCode() {
         return statusCode;
     }
 
-    public void setStatusCode(int statusCode) {
+    public HeartbeatMsgModel setStatusCode(int statusCode) {
         this.statusCode = statusCode;
+        return this;
     }
 
     @Override

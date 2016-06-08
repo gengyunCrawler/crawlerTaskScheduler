@@ -14,7 +14,8 @@ public class NodeInfo {
     private String command;
 
     /* shell utils */
-    private ShellUtils shell;
+    private ShellUtils shellUtils;
+
 
     public NodeInfo(String username, String password, String hostname, String command) {
 
@@ -22,12 +23,12 @@ public class NodeInfo {
         this.username = username;
         this.password = password;
         this.command = command;
-        shell = ShellUtils.getShellUtils(this.username, this.password, this.hostname, this.port);
+        shellUtils = ShellUtils.getShellUtils(this.username, this.password, this.hostname, this.port);
     }
 
     public String nodeStart() {
 
-        return this.shell.doExecuteShell(command);
+        return this.shellUtils.doExecuteShell(command);
     }
 
     public String getUsername() {
@@ -76,11 +77,11 @@ public class NodeInfo {
     }
 
     public ShellUtils getShell() {
-        return shell;
+        return shellUtils;
     }
 
     public NodeInfo setShell(ShellUtils shell) {
-        this.shell = shell;
+        this.shellUtils = shell;
         return this;
     }
 }

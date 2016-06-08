@@ -1,6 +1,8 @@
 package com.gonali.crawlerTask.scheduler.rulers;
 
 import com.gonali.crawlerTask.dao.TaskModelDao;
+import com.gonali.crawlerTask.model.EntityModel;
+import com.gonali.crawlerTask.model.TaskModel;
 import com.gonali.crawlerTask.redisQueue.TaskQueue;
 import com.gonali.crawlerTask.utils.ConfigUtils;
 
@@ -12,12 +14,14 @@ import java.util.List;
  */
 public abstract class RulerBase implements Ruler {
 
+    protected TaskModel currentTask;
 
     protected TaskModelDao taskModelDao;
     protected long maxTaskQueueLenth;
     protected long currentTaskQueueLenth;
     protected List<String> inQueueTaskIdList;
     protected String taskTableName = "crawlerTaskTable";
+    protected List<EntityModel> writeBackEntityList;
 
     protected RulerBase(){
 
@@ -32,6 +36,8 @@ public abstract class RulerBase implements Ruler {
         currentTaskQueueLenth = TaskQueue.queueLenth();
         inQueueTaskIdList = new ArrayList<>();
         taskModelDao = new TaskModelDao();
+
+        writeBackEntityList = new ArrayList<>();
     }
 
     public long getMaxTaskQueueLenth(){
@@ -42,5 +48,11 @@ public abstract class RulerBase implements Ruler {
     public long getCurrentTaskQueueLenth(){
 
         return currentTaskQueueLenth;
+    }
+
+
+    public void addToWriteBack(TaskModel model){
+
+        writeBackEntityList.add(model);
     }
 }

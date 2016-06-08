@@ -18,9 +18,21 @@ public class HeartbeatUpdater implements Runnable {
     private volatile List<HeartbeatMsgModel> heartbeatMsgList;
     private HeartbeatMsgQueue messageQueue;
     private Message message;
-    private int checkInterval;
+    private static int checkInterval;
     private Lock myLock;
 
+
+    static {
+        try {
+
+            checkInterval = Integer.parseInt(ConfigUtils.getResourceBundle("nodes").getString("NODES_CHECK_INTERVAL"));
+
+        } catch (NumberFormatException e) {
+
+            e.printStackTrace();
+            checkInterval = 10;
+        }
+    }
 
     public HeartbeatUpdater() {
 
@@ -28,15 +40,6 @@ public class HeartbeatUpdater implements Runnable {
         messageQueue = new HeartbeatMsgQueue();
         myLock = new ReentrantLock();
 
-        try {
-
-            this.checkInterval = Integer.parseInt(ConfigUtils.getResourceBundle("nodes").getString("NODES_CHECK_INTERVAL"));
-
-        } catch (NumberFormatException e) {
-
-            e.printStackTrace();
-            this.checkInterval = 10;
-        }
     }
 
     @Override
@@ -134,4 +137,33 @@ public class HeartbeatUpdater implements Runnable {
         return null;
     }
 
+
+    public HeartbeatMsgModel setHeartbeatMsg(String hostname, int pid, int statusCode) {
+
+        try {
+            myLock.lock();
+
+            int size = heartbeatMsgList.size();
+            for (int i = 0; i < size; i++)
+                if (heartbeatMsgList.get(i).getHostname().equals(hostname) && heartbeatMsgList.get(i).getPid() == pid) {
+                    HeartbeatMsgModel msg = heartbeatMsgList.get(i).setStatusCode(statusCode);
+                    return heartbeatMsgList.set(i, msg);
+                }
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+        } finally {
+
+            myLock.unlock();
+        }
+
+        return null;
+    }
+
+
+    public static int getCheckInterval() {
+        return checkInterval;
+    }
 }

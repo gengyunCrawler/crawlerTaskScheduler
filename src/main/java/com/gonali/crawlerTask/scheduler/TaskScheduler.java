@@ -3,6 +3,7 @@ package com.gonali.crawlerTask.scheduler;
 import com.gonali.crawlerTask.dao.TaskModelDao;
 import com.gonali.crawlerTask.handler.model.HeartbeatMsgModel;
 import com.gonali.crawlerTask.model.TaskModel;
+import com.gonali.crawlerTask.model.TaskStatus;
 import com.gonali.crawlerTask.nodes.NodeInfo;
 import com.gonali.crawlerTask.scheduler.rulers.Ruler;
 import com.gonali.crawlerTask.scheduler.rulers.SimpleLongTimeFirstRuler;
@@ -23,7 +24,9 @@ public class TaskScheduler {
     private HeartbeatUpdater heartbeatUpdater;
     private List<NodeInfo> nodeInfoList;
     private String command = "echo \" Hello World !! \"";
+    private String sh;
     private Ruler ruler;
+    private boolean isFinish;
 
     public static TaskModel getSchedulerCurrentTask(){
 
@@ -52,6 +55,15 @@ public class TaskScheduler {
         currentTask = null;
         taskTimer = new TaskTimer();
         heartbeatUpdater = new HeartbeatUpdater();
+        try {
+
+            this.sh = ConfigUtils.getResourceBundle().getString("NODE_START_SH");
+
+        } catch (Exception e) {
+            sh = "crawlerStart.sh";
+            e.printStackTrace();
+        }
+        isFinish = false;
     }
 
 
@@ -100,10 +112,13 @@ public class TaskScheduler {
 
         while (true) {
 
+
+
             ruler.writeBack(this);
+
             currentTask = ruler.doSchedule(this);
 
-            if (currentTask != null) {
+            if (currentTask != null && !isFinish && currentTask.getTaskStatus() == TaskStatus.UNCRAWL) {
 
                 setTaskInfo();
 
@@ -119,6 +134,9 @@ public class TaskScheduler {
                         ex.printStackTrace();
                     }
                 }
+            }else if(isFinish){
+
+                currentTask = null;
             }
 
             try {
@@ -148,6 +166,10 @@ public class TaskScheduler {
 
     public Ruler getRuler() {
         return ruler;
+    }
+
+    public void setIsFinish(boolean isFinish) {
+        this.isFinish = isFinish;
     }
 
     public HeartbeatUpdater getHeartbeatUpdater() {

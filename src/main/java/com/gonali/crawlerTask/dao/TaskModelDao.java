@@ -53,7 +53,7 @@ public class TaskModelDao extends LoggerUtil implements QueryDao {
             model.setTaskDynamicDepth(resultSet.getInt(TaskModeTableField.taskDynamicDepth));
             model.setTaskPass(resultSet.getInt(TaskModeTableField.taskPass));
             model.setTaskWeight(resultSet.getInt(TaskModeTableField.taskWeight));
-            model.setTaskStartTime(resultSet.getLong(TaskModeTableField.taskStartTime));
+            model.setTaskStartTime(resultSet.getTimestamp(TaskModeTableField.taskStartTime).getTime());
             model.setTaskRecrawlerDays(resultSet.getInt(TaskModeTableField.taskRecrawlerDays));
             model.setTaskTemplatePath(resultSet.getNString(TaskModeTableField.taskTemplatePath));
             model.setTaskTagPath(resultSet.getNString(TaskModeTableField.taskTagPath));
@@ -85,7 +85,7 @@ public class TaskModelDao extends LoggerUtil implements QueryDao {
             model.setTaskCompleteTimes(resultSet.getInt(TaskModeTableField.taskCompleteTimes));
             model.setTaskInstanceThreads(resultSet.getInt(TaskModeTableField.taskInstanceThreads));
             model.setTaskNodeInstances(resultSet.getInt(TaskModeTableField.taskNodeInstances));
-            model.setTaskStopTime(resultSet.getLong(TaskModeTableField.taskStopTime));
+            model.setTaskStopTime(resultSet.getTimestamp(TaskModeTableField.taskStopTime).getTime());
             model.setTaskCrawlerAmountInfo(new TaskCrawlerAmountInfoModel(resultSet.getNString(TaskModeTableField.taskCrawlerAmountInfo)));
             model.setTaskCrawlerInstanceInfo(new TaskCrawlerInstanceInfoModel().setCrawlerInstanceInfo(resultSet.getNString(TaskModeTableField.taskCrawlerInstanceInfo)));
 

@@ -29,7 +29,7 @@ CREATE TABLE crawlerTaskTable
   taskProtocolFilterPath TEXT,
   taskSuffixFilterPath TEXT,
   taskRegexFilterPath TEXT,
-  taskStatus ENUM('UNCRAWL', 'CRAWLING', 'CRAWLED', 'EXCEPTIOSTOP') DEFAULT 'UNCRAWL' NOT NULL,
+  taskStatus ENUM('UNCRAWL', 'CRAWLING', 'CRAWLED', 'EXCEPTIOSTOP', 'NODEWAITING', 'INQUEUE') DEFAULT 'UNCRAWL' NOT NULL,
   taskDeleteFlag BOOL DEFAULT FALSE,
   taskSeedAmount INT,
   taskSeedImportAmount INT,

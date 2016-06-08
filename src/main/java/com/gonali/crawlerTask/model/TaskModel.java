@@ -1,5 +1,8 @@
 package com.gonali.crawlerTask.model;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 /**
  * Created by TianyuanPan on 6/2/16.
  */
@@ -327,6 +330,7 @@ public class TaskModel implements EntityModel {
 
     @Override
     public String insertSqlBuilder(String tableName, EntityModel taskModel) {
+        SimpleDateFormat timeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
         String values = "'" + ((TaskModel) taskModel).getUserId() + "'," +
                 "'" + ((TaskModel) taskModel).getTaskId() + "'," +
@@ -337,7 +341,7 @@ public class TaskModel implements EntityModel {
                 ((TaskModel) taskModel).getTaskDynamicDepth() + "," +
                 ((TaskModel) taskModel).getTaskPass() + "," +
                 ((TaskModel) taskModel).getTaskWeight() + "," +
-                ((TaskModel) taskModel).getTaskStartTime() + "," +
+                "'" + timeFormat.format(new Date(((TaskModel) taskModel).getTaskStartTime()))  + "'," +
                 ((TaskModel) taskModel).getTaskRecrawlerDays() + "," +
                 "'" + ((TaskModel) taskModel).getTaskTemplatePath() + "'," +
                 "'" + ((TaskModel) taskModel).getTaskTagPath() + "'," +
@@ -351,10 +355,10 @@ public class TaskModel implements EntityModel {
                 ((TaskModel) taskModel).isTaskDeleteFlag() + "," +
                 ((TaskModel) taskModel).getTaskSeedAmount() + "," +
                 ((TaskModel) taskModel).getTaskSeedImportAmount() + "," +
-                ((TaskModel) taskModel).getTaskCompleteTimes() + "," +
+                ((TaskModel) taskModel).getTaskCompleteTimes()  + "," +
                 ((TaskModel) taskModel).getTaskInstanceThreads() + "," +
                 ((TaskModel) taskModel).getTaskNodeInstances() + "," +
-                ((TaskModel) taskModel).getTaskStopTime() + "," +
+                "'" + timeFormat.format(new Date(((TaskModel) taskModel).getTaskStopTime()))  + "'," +
                 "'" + ((TaskModel) taskModel).getTaskCrawlerAmountInfo().getCrawlerAmountInfoJsonString() + "'," +
                 "'" + ((TaskModel) taskModel).getTaskCrawlerInstanceInfo().getCrawlerInstanceInfoJsonString() + "'";
 
@@ -376,16 +380,18 @@ public class TaskModel implements EntityModel {
     @Override
     public String updateSqlBuilder(String tableName, EntityModel taskModel) {
 
+        SimpleDateFormat timeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
         String sql = "UPDATE  " + tableName + "  " +
                 "SET userId = " + "'" + ((TaskModel) taskModel).getUserId() + "'," +
                 " taskType = " + "'" + ((TaskModel) taskModel).getTaskType() + "'," +
                 " taskRemark = " + "'" + ((TaskModel) taskModel).getTaskRemark() + "'," +
                 " taskSeedUrl = " + "'" + ((TaskModel) taskModel).getTaskSeedUrl().getSeedurlJsonString() + "'," +
-                " taskCrawlerDepth = "+ ((TaskModel) taskModel).getTaskCrawlerDepth() + "," +
+                " taskCrawlerDepth = " + ((TaskModel) taskModel).getTaskCrawlerDepth() + "," +
                 " taskDynamicDepth = " + ((TaskModel) taskModel).getTaskDynamicDepth() + "," +
                 " taskPass = " + ((TaskModel) taskModel).getTaskPass() + "," +
                 " taskWeight = " + ((TaskModel) taskModel).getTaskWeight() + "," +
-                " taskStartTime = " + ((TaskModel) taskModel).getTaskStartTime() + "," +
+                " taskStartTime = '" + timeFormat.format(new Date(((TaskModel) taskModel).getTaskStartTime())) + "'," +
                 " taskRecrawlerDays = " + ((TaskModel) taskModel).getTaskRecrawlerDays() + "," +
                 " taskTemplatePath = " + "'" + ((TaskModel) taskModel).getTaskTemplatePath() + "'," +
                 " taskTagPath = " + "'" + ((TaskModel) taskModel).getTaskTagPath() + "'," +
@@ -401,8 +407,8 @@ public class TaskModel implements EntityModel {
                 " taskSeedImportAmount = " + ((TaskModel) taskModel).getTaskSeedImportAmount() + "," +
                 " taskCompleteTimes = " + ((TaskModel) taskModel).getTaskCompleteTimes() + "," +
                 " taskInstanceThreads = " + ((TaskModel) taskModel).getTaskInstanceThreads() + "," +
-                " taskNodeInstances = " + ((TaskModel) taskModel).getTaskNodeInstances()  + "," +
-                " taskStopTime = " + ((TaskModel) taskModel).getTaskStopTime() + "," +
+                " taskNodeInstances = " + ((TaskModel) taskModel).getTaskNodeInstances() + "," +
+                " taskStopTime = '" + timeFormat.format(new Date(((TaskModel) taskModel).getTaskStopTime())) + "'," +
                 " taskCrawlerAmountInfo = " + "'" + ((TaskModel) taskModel).getTaskCrawlerAmountInfo().getCrawlerAmountInfoJsonString() + "'," +
                 " taskCrawlerInstanceInfo =  " + "'" + ((TaskModel) taskModel).getTaskCrawlerInstanceInfo().getCrawlerInstanceInfoJsonString() + "'   " +
                 "WHERE taskId = " + "'" + ((TaskModel) taskModel).getTaskId() + "'";
