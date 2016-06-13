@@ -93,6 +93,21 @@ public class HeartbeatUpdater implements Runnable {
         }
     }
 
+    public void resetHeartbeatMsgList(){
+
+        try {
+            myLock.lock();
+
+            this.heartbeatMsgList = new ArrayList<>();
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+        } finally {
+
+            myLock.unlock();
+        }
+    }
 
     public  List<HeartbeatMsgModel> getHeartbeatMsgList() {
 
@@ -161,6 +176,7 @@ public class HeartbeatUpdater implements Runnable {
 
         return null;
     }
+
 
 
     public static int getCheckInterval() {

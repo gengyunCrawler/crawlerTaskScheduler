@@ -17,8 +17,8 @@ public abstract class RulerBase implements Ruler {
     protected TaskModel currentTask;
 
     protected TaskModelDao taskModelDao;
-    protected long maxTaskQueueLenth;
-    protected long currentTaskQueueLenth;
+    protected long maxTaskQueueLength;
+    protected long currentTaskQueueLength;
     protected List<String> inQueueTaskIdList;
     protected String taskTableName = "crawlerTaskTable";
     protected List<EntityModel> writeBackEntityList;
@@ -26,33 +26,43 @@ public abstract class RulerBase implements Ruler {
     protected RulerBase(){
 
         try {
-            maxTaskQueueLenth = Integer.parseInt(ConfigUtils.getResourceBundle().getString("MAX_TASK_QUEUE_LENTH"));
+            maxTaskQueueLength = Integer.parseInt(ConfigUtils.getResourceBundle().getString("MAX_TASK_QUEUE_LENGTH"));
             taskTableName = ConfigUtils.getResourceBundle().getString("CRAWLER_TASK_TABLE");
         } catch (NumberFormatException e) {
-            maxTaskQueueLenth = 100;
+            maxTaskQueueLength = 100;
             e.printStackTrace();
         }
 
-        currentTaskQueueLenth = TaskQueue.queueLenth();
+        currentTaskQueueLength = TaskQueue.queueLenth();
         inQueueTaskIdList = new ArrayList<>();
         taskModelDao = new TaskModelDao();
 
         writeBackEntityList = new ArrayList<>();
     }
 
-    public long getMaxTaskQueueLenth(){
+    public long getMaxTaskQueueLength(){
 
-        return maxTaskQueueLenth;
+        return maxTaskQueueLength;
     }
 
-    public long getCurrentTaskQueueLenth(){
+    public long getCurrentTaskQueueLength(){
 
-        return currentTaskQueueLenth;
+        return currentTaskQueueLength;
     }
 
 
     public void addToWriteBack(TaskModel model){
 
         writeBackEntityList.add(model);
+    }
+
+    public void cleanWriteBackEntityList(){
+
+        writeBackEntityList = new ArrayList<>();
+    }
+
+    public boolean isListContainsEntity (TaskModel o){
+
+        return writeBackEntityList.contains(o);
     }
 }

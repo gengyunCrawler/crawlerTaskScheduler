@@ -1,11 +1,12 @@
 package com.gonali.crawlerTask.scheduler;
 
-import com.gonali.crawlerTask.dao.TaskModelDao;
 import com.gonali.crawlerTask.handler.model.HeartbeatMsgModel;
 import com.gonali.crawlerTask.model.TaskModel;
 import com.gonali.crawlerTask.model.TaskStatus;
 import com.gonali.crawlerTask.nodes.NodeInfo;
+import com.gonali.crawlerTask.redisQueue.TaskQueue;
 import com.gonali.crawlerTask.scheduler.rulers.Ruler;
+import com.gonali.crawlerTask.scheduler.rulers.RulerBase;
 import com.gonali.crawlerTask.scheduler.rulers.SimpleLongTimeFirstRuler;
 import com.gonali.crawlerTask.utils.ConfigUtils;
 
@@ -26,23 +27,23 @@ public class TaskScheduler {
     private String command = "echo \" Hello World !! \"";
     private String sh;
     private Ruler ruler;
-    private boolean isFinish;
+    private boolean isCurrentFinish;
 
-    public static TaskModel getSchedulerCurrentTask(){
+    public static TaskModel getSchedulerCurrentTask() {
 
         if (scheduler == null)
             return null;
         return scheduler.getCurrentTask();
     }
 
-    public static List<HeartbeatMsgModel> getSchedulerHeartbeatMsgList(){
+    public static List<HeartbeatMsgModel> getSchedulerHeartbeatMsgList() {
 
         if (scheduler == null)
             return null;
         return scheduler.heartbeatUpdater.getHeartbeatMsgList();
     }
 
-    public static List<NodeInfo> getSchedulerNodeInfoList(){
+    public static List<NodeInfo> getSchedulerNodeInfoList() {
 
         if (scheduler == null)
             return null;
@@ -63,7 +64,7 @@ public class TaskScheduler {
             sh = "crawlerStart.sh";
             e.printStackTrace();
         }
-        isFinish = false;
+        isCurrentFinish = false;
     }
 
 
@@ -78,7 +79,35 @@ public class TaskScheduler {
 
     }
 
+    /**
+     * $(1):  depth
+     * $(2):  pass
+     * $(3):  tid
+     * $(4):  startTime
+     * $(5):  seedPath
+     * $(6):  protocolDir
+     * $(7):  type
+     * $(8):  recallDepth
+     * $(9):  templateDir
+     * $(10): clickRegexDir
+     * $(11): postRegexDir
+     * $(12): configPath
+     */
     private void setTaskInfo() {
+
+        command = sh +
+                "  " + currentTask.getTaskCrawlerDepth() +
+                "  " + currentTask.getTaskPass() +
+                "  " + currentTask.getTaskId() +
+                "  " + currentTask.getTaskStartTime() +
+                "  " + currentTask.getTaskSeedPath() +
+                "  " + currentTask.getTaskProtocolFilterPath() +
+                "  " + currentTask.getTaskType() +
+                "  " + currentTask.getTaskCrawlerDepth() +
+                "  " + currentTask.getTaskTemplatePath() +
+                "  " + currentTask.getTaskClickRegexPath() +
+                "  " + currentTask.getTaskRegexFilterPath() +
+                "  " + currentTask.getTaskConfigPath();
 
         int nodes = Integer.parseInt(ConfigUtils.getResourceBundle("nodes").getString("NODES"));
 
@@ -97,6 +126,10 @@ public class TaskScheduler {
 
     }
 
+    private void cleanTaskQueue(){
+
+        while (TaskQueue.popCrawlerTaskQueue() != null);
+    }
 
     public static TaskScheduler createTaskScheduler() {
 
@@ -108,18 +141,21 @@ public class TaskScheduler {
 
     public void schedulerStart() {
 
+        cleanTaskQueue();
         new Thread(heartbeatUpdater).start();
-
         while (true) {
-
 
 
             ruler.writeBack(this);
 
             currentTask = ruler.doSchedule(this);
 
-            if (currentTask != null && !isFinish && currentTask.getTaskStatus() == TaskStatus.UNCRAWL) {
+            if (currentTask != null &&
+                    !isCurrentFinish &&
+                    currentTask.getTaskStatus() == TaskStatus.UNCRAWL) {
 
+                currentTask.setTaskStatus(TaskStatus.CRAWLING);
+                ((RulerBase)ruler).addToWriteBack(currentTask);
                 setTaskInfo();
 
                 for (NodeInfo node : nodeInfoList) {
@@ -134,8 +170,9 @@ public class TaskScheduler {
                         ex.printStackTrace();
                     }
                 }
-            }else if(isFinish){
+            } else if (isCurrentFinish) {
 
+                ruler.writeBack(this);
                 currentTask = null;
             }
 
@@ -151,6 +188,7 @@ public class TaskScheduler {
         }
 
     }
+
 
     public TaskModel getCurrentTask() {
         return currentTask;
@@ -168,11 +206,12 @@ public class TaskScheduler {
         return ruler;
     }
 
-    public void setIsFinish(boolean isFinish) {
-        this.isFinish = isFinish;
+    public void setIsCurrentFinish(boolean isCurrentFinish) {
+        this.isCurrentFinish = isCurrentFinish;
     }
 
     public HeartbeatUpdater getHeartbeatUpdater() {
         return heartbeatUpdater;
     }
+
 }

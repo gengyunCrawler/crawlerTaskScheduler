@@ -11,6 +11,7 @@ import com.gonali.crawlerTask.redisQueue.TaskQueue;
 import com.gonali.crawlerTask.scheduler.HeartbeatUpdater;
 import com.gonali.crawlerTask.scheduler.TaskScheduler;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -27,13 +28,19 @@ public class SimpleLongTimeFirstRuler extends RulerBase {
     @Override
     public void writeBack(TaskScheduler scheduler) {
 
-        TaskModel current = scheduler.getCurrentTask();
+ /*       TaskModel current = scheduler.getCurrentTask();
 
-        if (current != null)
+        if (current != null &&
+                !isListContainsEntity(current) &&
+                current.getTaskStatus() == TaskStatus.CRAWLED) {
+
             addToWriteBack(current);
+        }*/
 
         for (EntityModel m : writeBackEntityList)
             taskModelDao.update(taskTableName, m);
+
+        cleanWriteBackEntityList();
 
     }
 
@@ -48,10 +55,10 @@ public class SimpleLongTimeFirstRuler extends RulerBase {
 
             currentTask = getTask();
             if (currentTask == null) {
-                scheduler.setIsFinish(true);
+                scheduler.setIsCurrentFinish(true);
                 return null;
             }
-            scheduler.setIsFinish(false);
+            scheduler.setIsCurrentFinish(false);
             currentTask.setTaskStartTime(System.currentTimeMillis());
             currentTask.setTaskStatus(TaskStatus.UNCRAWL);
             return currentTask;
@@ -60,6 +67,10 @@ public class SimpleLongTimeFirstRuler extends RulerBase {
         List<NodeInfo> nodeInfoList = scheduler.getNodeInfoList();
         int node = nodeInfoList.size();
         List<HeartbeatMsgModel> heartbeatList = scheduler.getHeartbeatUpdater().getHeartbeatMsgList();
+
+
+        if (heartbeatList.size() < node)
+            return currentTask;
 
         long currentTime = System.currentTimeMillis();
 
@@ -75,16 +86,29 @@ public class SimpleLongTimeFirstRuler extends RulerBase {
         }
 
         // current task finished check
-        int finished = 4;
+        int finished = HeartbeatStatusCode.CRAWLING;
+
         for (HeartbeatMsgModel heartbeat : heartbeatList) {
             finished &= heartbeat.getStatusCode();
         }
+
         if (finished == HeartbeatStatusCode.FINISHED) {
-            scheduler.setIsFinish(true);
+            int size = inQueueTaskIdList.size();
+            for (int i = 0; i < size; i++) {
+                if (inQueueTaskIdList.get(i).equals(currentTask.getTaskId())) {
+                    inQueueTaskIdList.remove(i);
+                    break;
+                }
+            }
+            scheduler.setIsCurrentFinish(true);
+            scheduler.getCurrentTask().setTaskStopTime(System.currentTimeMillis());
             addToWriteBack(scheduler.getCurrentTask());
+            scheduler.getHeartbeatUpdater().resetHeartbeatMsgList();
+
             return null;
         }
-        System.out.println("HeartbeatMseage:\n\t" + JSON.toJSONString(null));
+
+        System.out.println("HeartbeatMseage:\n\t" + JSON.toJSONString(scheduler.getHeartbeatUpdater().getHeartbeatMsgList()));
         currentTask.setTaskStatus(TaskStatus.CRAWLING);
         return currentTask;
     }
@@ -96,8 +120,7 @@ public class SimpleLongTimeFirstRuler extends RulerBase {
         int size = modelList.size();
         for (int i = 0; i < size; ) {
 
-            if (inQueueTaskIdList.contains(((TaskModel) modelList.get(i)).getTaskId()) ||
-                    ((TaskModel) modelList.get(i)).getTaskStatus() == TaskStatus.INQUEUE) {
+            if (inQueueTaskIdList.contains(((TaskModel) modelList.get(i)).getTaskId())) {
 
                 modelList.remove(i);
                 size = modelList.size();
@@ -110,20 +133,20 @@ public class SimpleLongTimeFirstRuler extends RulerBase {
 
         TaskModel[] sortedModels = sortByTimeAesc(modelList);
 
-        int lenth = sortedModels.length;
-        for (int i = 0; i < lenth; i++) {
+        int length = sortedModels.length;
+        for (int i = 0; i < length; i++) {
 
-            if (currentTaskQueueLenth < maxTaskQueueLenth) {
+            if (currentTaskQueueLength < maxTaskQueueLength) {
 
                 sortedModels[i].setTaskStatus(TaskStatus.INQUEUE);
                 inQueueTaskIdList.add(sortedModels[i].getTaskId());
                 TaskQueue.pushCrawlerTaskQueue(sortedModels[i]);
                 addToWriteBack(sortedModels[i]);
-                currentTaskQueueLenth = TaskQueue.queueLenth();
+                currentTaskQueueLength = TaskQueue.queueLenth();
             } else break;
         }
 
-        currentTaskQueueLenth = TaskQueue.queueLenth();
+        currentTaskQueueLength = TaskQueue.queueLenth();
     }
 
 
@@ -157,28 +180,20 @@ public class SimpleLongTimeFirstRuler extends RulerBase {
 
     private TaskModel getTask() {
 
-        if (currentTaskQueueLenth > 0) {
+        if (currentTaskQueueLength > 0) {
 
             currentTask = TaskQueue.popCrawlerTaskQueue();
             if (currentTask == null) {
                 System.out.println("ERR: Scheduler crashed !!!!");
                 return null;
             }
-            currentTaskQueueLenth = TaskQueue.queueLenth();
+            currentTaskQueueLength = TaskQueue.queueLenth();
 
         } else {
 
             return null;
         }
 
-        int size = inQueueTaskIdList.size();
-        for (int i = 0; i < size; i++) {
-            if (inQueueTaskIdList.get(i).equals(currentTask.getTaskId())) {
-                inQueueTaskIdList.remove(i);
-                break;
-            }
-        }
-        currentTask.setTaskStatus(TaskStatus.CRAWLING);
         return currentTask;
     }
 
