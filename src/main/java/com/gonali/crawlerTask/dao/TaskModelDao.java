@@ -35,7 +35,8 @@ public class TaskModelDao extends LoggerUtil implements QueryDao {
             model.setTaskId(resultSet.getNString(TaskModeTableField.taskId));
             model.setUserId(resultSet.getNString(TaskModeTableField.userId));
 
-            switch (resultSet.getNString(TaskModeTableField.taskType)) {
+            String taskType = resultSet.getNString(TaskModeTableField.taskType);
+            switch (taskType) {
                 case "TOPIC":
                     model.setTaskType(TaskType.TOPIC);
                     break;

@@ -5,9 +5,9 @@ package com.gonali.crawlerTask.handler.model;
  */
 public final class HeartbeatStatusCode {
 
-    public static final int FINISHED = 0;
-    public static final int CRAWLING = 1;
-    public static final int TIMEOUT = 2;
-    public static final int EXECEPTION_STOP = 3;
-    public static final int STARTING = 4;
+    public static final int FINISHED = 0x00;
+    public static final int CRAWLING = 0x01;
+    public static final int TIMEOUT =  0x03;
+    public static final int EXECEPTION_STOP = 0x07;
+    public static final int STARTING = 0x0f;
 }

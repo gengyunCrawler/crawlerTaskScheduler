@@ -27,6 +27,9 @@ public class TaskScheduler {
     private String command = "echo \" Hello World !! \"";
     private String sh;
     private Ruler ruler;
+
+
+
     private boolean isCurrentFinish;
 
     public static TaskModel getSchedulerCurrentTask() {
@@ -80,6 +83,7 @@ public class TaskScheduler {
     }
 
     /**
+     *
      * $(1):  depth
      * $(2):  pass
      * $(3):  tid
@@ -92,6 +96,8 @@ public class TaskScheduler {
      * $(10): clickRegexDir
      * $(11): postRegexDir
      * $(12): configPath
+     *
+     *
      */
     private void setTaskInfo() {
 
@@ -208,6 +214,10 @@ public class TaskScheduler {
 
     public void setIsCurrentFinish(boolean isCurrentFinish) {
         this.isCurrentFinish = isCurrentFinish;
+    }
+
+    public boolean isCurrentFinish() {
+        return isCurrentFinish;
     }
 
     public HeartbeatUpdater getHeartbeatUpdater() {

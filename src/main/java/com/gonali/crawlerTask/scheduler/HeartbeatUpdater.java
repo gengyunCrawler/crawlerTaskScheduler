@@ -80,20 +80,24 @@ public class HeartbeatUpdater implements Runnable {
                 heartbeatMsgList.add((HeartbeatMsgModel) message);
                 continue;
             }
-            for (int i = 0; i < msgSize; ++i)
+            for (int i = 0; i < msgSize; ++i) {
                 if (heartbeatMsgList.get(i).getHostname().equals(
                         ((HeartbeatMsgModel) message).getHostname()) &&
                         heartbeatMsgList.get(i).getPid() == ((HeartbeatMsgModel) message).getPid()) {
 
                     heartbeatMsgList.set(i, (HeartbeatMsgModel) message);
+                    continue;
 
-                } else {
-                    heartbeatMsgList.add((HeartbeatMsgModel) message);
                 }
+
+                if (i == msgSize - 1)
+                    heartbeatMsgList.add((HeartbeatMsgModel) message);
+            }
+
         }
     }
 
-    public void resetHeartbeatMsgList(){
+    public void resetHeartbeatMsgList() {
 
         try {
             myLock.lock();
@@ -109,7 +113,7 @@ public class HeartbeatUpdater implements Runnable {
         }
     }
 
-    public  List<HeartbeatMsgModel> getHeartbeatMsgList() {
+    public List<HeartbeatMsgModel> getHeartbeatMsgList() {
 
 
         try {
@@ -176,7 +180,6 @@ public class HeartbeatUpdater implements Runnable {
 
         return null;
     }
-
 
 
     public static int getCheckInterval() {

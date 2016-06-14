@@ -40,7 +40,8 @@ public class SimpleLongTimeFirstRuler extends RulerBase {
         for (EntityModel m : writeBackEntityList)
             taskModelDao.update(taskTableName, m);
 
-        cleanWriteBackEntityList();
+        if (scheduler.isCurrentFinish())
+            cleanWriteBackEntityList();
 
     }
 
@@ -89,7 +90,8 @@ public class SimpleLongTimeFirstRuler extends RulerBase {
         int finished = HeartbeatStatusCode.CRAWLING;
 
         for (HeartbeatMsgModel heartbeat : heartbeatList) {
-            finished &= heartbeat.getStatusCode();
+            int code = heartbeat.getStatusCode();
+            finished = finished & code;
         }
 
         if (finished == HeartbeatStatusCode.FINISHED) {

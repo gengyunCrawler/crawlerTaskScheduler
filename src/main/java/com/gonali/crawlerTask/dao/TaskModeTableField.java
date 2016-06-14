@@ -8,7 +8,7 @@ public class TaskModeTableField {
     public static final String PK = "taskId";
     public static final String userId = "userId";
     public static final String taskId = "taskId";
-    public static final String taskType = "taskId";
+    public static final String taskType = "taskType";
     public static final String taskRemark = "taskRemark";
     public static final String taskSeedUrl = "taskSeedUrl";
     public static final String taskCrawlerDepth = "taskCrawlerDepth";
