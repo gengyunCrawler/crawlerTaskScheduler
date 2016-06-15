@@ -37,8 +37,10 @@ public class SimpleLongTimeFirstRuler extends RulerBase {
             addToWriteBack(current);
         }*/
 
-        for (EntityModel m : writeBackEntityList)
+        for (EntityModel m : writeBackEntityList) {
             taskModelDao.update(taskTableName, m);
+            writeBackEntityList.remove(m);
+        }
 
         if (scheduler.isCurrentFinish())
             cleanWriteBackEntityList();
@@ -50,7 +52,8 @@ public class SimpleLongTimeFirstRuler extends RulerBase {
 
         currentTask = scheduler.getCurrentTask();
 
-        updateTaskQueue();
+        if (currentTaskQueueLength < 3)
+            updateTaskQueue();
 
         if (currentTask == null) {
 
@@ -81,7 +84,7 @@ public class SimpleLongTimeFirstRuler extends RulerBase {
             for (HeartbeatMsgModel heartbeat : heartbeatList) {
 
                 if (heartbeat.getHostname().equals(nodeInfoList.get(i).getHostname()))
-                    if (currentTime - heartbeat.getTime() > 3 * HeartbeatUpdater.getCheckInterval())
+                    if (currentTime - heartbeat.getTime() > 3 * 1000 * HeartbeatUpdater.getCheckInterval())
                         scheduler.getHeartbeatUpdater().setHeartbeatMsg(heartbeat.getHostname(), heartbeat.getPid(), HeartbeatStatusCode.TIMEOUT);
             }
         }
@@ -104,14 +107,15 @@ public class SimpleLongTimeFirstRuler extends RulerBase {
             }
             scheduler.setIsCurrentFinish(true);
             scheduler.getCurrentTask().setTaskStopTime(System.currentTimeMillis());
+            scheduler.getCurrentTask().setTaskStatus(TaskStatus.CRAWLED);
             addToWriteBack(scheduler.getCurrentTask());
             scheduler.getHeartbeatUpdater().resetHeartbeatMsgList();
 
             return null;
         }
 
-        System.out.println("HeartbeatMseage:\n\t" + JSON.toJSONString(scheduler.getHeartbeatUpdater().getHeartbeatMsgList()));
-        currentTask.setTaskStatus(TaskStatus.CRAWLING);
+       // System.out.println("HeartbeatMseage:\n\t" + JSON.toJSONString(scheduler.getHeartbeatUpdater().getHeartbeatMsgList()));
+       // currentTask.setTaskStatus(TaskStatus.CRAWLING);
         return currentTask;
     }
 
@@ -181,6 +185,8 @@ public class SimpleLongTimeFirstRuler extends RulerBase {
 
 
     private TaskModel getTask() {
+
+        currentTaskQueueLength = TaskQueue.queueLenth();
 
         if (currentTaskQueueLength > 0) {
 

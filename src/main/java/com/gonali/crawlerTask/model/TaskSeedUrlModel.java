@@ -18,19 +18,20 @@ public class TaskSeedUrlModel implements Serializable{
 
     public TaskSeedUrlModel(){
 
-        seedUrlList = new ArrayList<String>();
+        seedUrlList = new ArrayList<>();
         size = 0;
     }
 
     public TaskSeedUrlModel(String seedUrlJson){
 
         size = 0;
-        seedUrlList = new ArrayList<String>();
+        seedUrlList = new ArrayList<>();
 
         try {
 
-            seedUrlList = JSON.parseObject(seedUrlJson, List.class);
-            size = seedUrlList.size();
+                seedUrlList = JSON.parseObject(seedUrlJson, List.class);
+                size = seedUrlList.size();
+
         }catch (Exception ex){
 
             ex.printStackTrace();

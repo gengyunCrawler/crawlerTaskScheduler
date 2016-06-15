@@ -15,6 +15,7 @@ public class TaskQueue {
 
 
     private static final String QUEUE_KEY = QueueKeys.QUEUE_KEY_TASK;
+    private static final int dbIndex = 3;
 
     private TaskQueue() {
 
@@ -29,6 +30,7 @@ public class TaskQueue {
 
             byte[] bytes = ObjectSerializeUtils.serializeToBytes(taskModel);
             jedis = JedisPoolUtils.getJedis();
+            jedis.select(dbIndex);
             jedis.lpush(QUEUE_KEY.getBytes(), bytes);
 
         } catch (Exception ex) {
@@ -49,6 +51,7 @@ public class TaskQueue {
         try {
 
             jedis = JedisPoolUtils.getJedis();
+            jedis.select(dbIndex);
             byte[] bytes = jedis.rpop(QUEUE_KEY.getBytes());
             if (bytes == null)
                 return null;
@@ -74,6 +77,7 @@ public class TaskQueue {
 
         try {
             jedis = JedisPoolUtils.getJedis();
+            jedis.select(dbIndex);
             return jedis.llen(QUEUE_KEY.getBytes());
         } catch (IOException e) {
             e.printStackTrace();

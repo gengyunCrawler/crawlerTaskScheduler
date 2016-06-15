@@ -14,6 +14,7 @@ public class HeartbeatMsgQueue extends LoggerUtil implements MessageQueue {
 
 
     private static final String QUEUE_KEY = QueueKeys.QUEUE_KEY_HEARTBEAT_MESSAGE;
+    private static final int dbIndex = 3;
 
     private Jedis jedis;
     private HeartbeatMsgModel heartbeat;
@@ -37,6 +38,7 @@ public class HeartbeatMsgQueue extends LoggerUtil implements MessageQueue {
         try {
             byte[] bytes = ObjectSerializeUtils.serializeToBytes(this.heartbeat);
             jedis = JedisPoolUtils.getJedis();
+            jedis.select(dbIndex);
             jedis.lpush(QUEUE_KEY.getBytes(), bytes);
 
         } catch (Exception ex) {
@@ -57,7 +59,7 @@ public class HeartbeatMsgQueue extends LoggerUtil implements MessageQueue {
 
         try {
             jedis = JedisPoolUtils.getJedis();
-
+            jedis.select(dbIndex);
             byte[] bytes = jedis.rpop(QueueKeys.QUEUE_KEY_HEARTBEAT_MESSAGE.getBytes());
 
             if (bytes == null)

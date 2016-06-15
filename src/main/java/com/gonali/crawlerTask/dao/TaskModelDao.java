@@ -49,7 +49,22 @@ public class TaskModelDao extends LoggerUtil implements QueryDao {
             }
 
             model.setTaskRemark(resultSet.getNString(TaskModeTableField.taskRemark));
-            model.setTaskSeedUrl(new TaskSeedUrlModel(resultSet.getNString(TaskModeTableField.taskSeedUrl)));
+
+
+            String seedUrls;
+            try {
+
+                seedUrls = resultSet.getNString(TaskModeTableField.taskSeedUrl);
+
+            } catch (SQLException e) {
+
+                e.printStackTrace();
+
+                seedUrls = "[\"seedUrl\"]";
+
+            }
+
+            model.setTaskSeedUrl(new TaskSeedUrlModel(seedUrls));
             model.setTaskCrawlerDepth(resultSet.getInt(TaskModeTableField.taskCrawlerDepth));
             model.setTaskDynamicDepth(resultSet.getInt(TaskModeTableField.taskDynamicDepth));
             model.setTaskPass(resultSet.getInt(TaskModeTableField.taskPass));
@@ -66,9 +81,9 @@ public class TaskModelDao extends LoggerUtil implements QueryDao {
             model.setTaskRegexFilterPath(resultSet.getString(TaskModeTableField.taskRegexFilterPath));
 
             switch (resultSet.getNString(TaskModeTableField.taskStatus)) {
-                case "CRAWLING":
-                    model.setTaskStatus(TaskStatus.CRAWLING);
-                    break;
+//                case "CRAWLING":
+//                    model.setTaskStatus(TaskStatus.CRAWLING);
+//                    break;
                 case "CRAWLED":
                     model.setTaskStatus(TaskStatus.CRAWLED);
                     break;

@@ -4,6 +4,7 @@ import com.gonali.crawlerTask.handler.model.HeartbeatMsgModel;
 import com.gonali.crawlerTask.model.TaskModel;
 import com.gonali.crawlerTask.model.TaskStatus;
 import com.gonali.crawlerTask.nodes.NodeInfo;
+import com.gonali.crawlerTask.redisQueue.HeartbeatMsgQueue;
 import com.gonali.crawlerTask.redisQueue.TaskQueue;
 import com.gonali.crawlerTask.scheduler.rulers.Ruler;
 import com.gonali.crawlerTask.scheduler.rulers.RulerBase;
@@ -27,7 +28,6 @@ public class TaskScheduler {
     private String command = "echo \" Hello World !! \"";
     private String sh;
     private Ruler ruler;
-
 
 
     private boolean isCurrentFinish;
@@ -83,7 +83,6 @@ public class TaskScheduler {
     }
 
     /**
-     *
      * $(1):  depth
      * $(2):  pass
      * $(3):  tid
@@ -96,8 +95,6 @@ public class TaskScheduler {
      * $(10): clickRegexDir
      * $(11): postRegexDir
      * $(12): configPath
-     *
-     *
      */
     private void setTaskInfo() {
 
@@ -132,9 +129,16 @@ public class TaskScheduler {
 
     }
 
-    private void cleanTaskQueue(){
+    private void cleanTaskQueue() {
 
-        while (TaskQueue.popCrawlerTaskQueue() != null);
+        while (TaskQueue.popCrawlerTaskQueue() != null) ;
+    }
+
+    private void cleanHeartbeatMsgQueue() {
+
+        HeartbeatMsgQueue queue = new HeartbeatMsgQueue();
+
+        while (queue.popMessage() != null) ;
     }
 
     public static TaskScheduler createTaskScheduler() {
@@ -148,6 +152,7 @@ public class TaskScheduler {
     public void schedulerStart() {
 
         cleanTaskQueue();
+        cleanHeartbeatMsgQueue();
         new Thread(heartbeatUpdater).start();
         while (true) {
 
@@ -161,7 +166,7 @@ public class TaskScheduler {
                     currentTask.getTaskStatus() == TaskStatus.UNCRAWL) {
 
                 currentTask.setTaskStatus(TaskStatus.CRAWLING);
-                ((RulerBase)ruler).addToWriteBack(currentTask);
+                ((RulerBase) ruler).addToWriteBack(currentTask);
                 setTaskInfo();
 
                 for (NodeInfo node : nodeInfoList) {
@@ -184,7 +189,7 @@ public class TaskScheduler {
 
             try {
 
-                Thread.sleep(300);
+                Thread.sleep(1000);
 
             } catch (InterruptedException e) {
 
