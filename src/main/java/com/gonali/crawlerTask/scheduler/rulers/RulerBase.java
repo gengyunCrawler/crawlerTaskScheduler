@@ -4,6 +4,7 @@ import com.gonali.crawlerTask.dao.TaskModelDao;
 import com.gonali.crawlerTask.model.EntityModel;
 import com.gonali.crawlerTask.model.TaskModel;
 import com.gonali.crawlerTask.redisQueue.TaskQueue;
+import com.gonali.crawlerTask.scheduler.CurrentTask;
 import com.gonali.crawlerTask.utils.ConfigUtils;
 
 import java.util.ArrayList;
@@ -14,7 +15,7 @@ import java.util.List;
  */
 public abstract class RulerBase implements Ruler {
 
-    protected TaskModel currentTask;
+    protected CurrentTask currentTasks;
 
     protected TaskModelDao taskModelDao;
     protected long maxTaskQueueLength;

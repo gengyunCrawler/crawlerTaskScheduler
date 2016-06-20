@@ -21,22 +21,24 @@ public class TaskScheduler {
 
     private static volatile TaskScheduler scheduler;
 
-    private TaskModel currentTask;
-    private TaskTimer taskTimer;
+    //    private TaskModel currentTask;
+//    private TaskTimer taskTimer;
+    private CurrentTask currentTasks;
     private HeartbeatUpdater heartbeatUpdater;
     private List<NodeInfo> nodeInfoList;
     private String command = "echo \" Hello World !! \"";
     private String sh;
     private Ruler ruler;
 
+    private  int nodeNumber;
 
-    private boolean isCurrentFinish;
+//    private boolean isCurrentFinish;
 
-    public static TaskModel getSchedulerCurrentTask() {
+    public static CurrentTask getSchedulerCurrentTask() {
 
         if (scheduler == null)
             return null;
-        return scheduler.getCurrentTask();
+        return scheduler.getCurrentTasks();
     }
 
     public static List<HeartbeatMsgModel> getSchedulerHeartbeatMsgList() {
@@ -56,8 +58,7 @@ public class TaskScheduler {
 
     private TaskScheduler() {
 
-        currentTask = null;
-        taskTimer = new TaskTimer();
+        //        taskTimer = new TaskTimer();
         heartbeatUpdater = new HeartbeatUpdater();
         try {
 
@@ -67,7 +68,26 @@ public class TaskScheduler {
             sh = "crawlerStart.sh";
             e.printStackTrace();
         }
-        isCurrentFinish = false;
+//        isCurrentFinish = false;
+        int currentTaskSize;
+
+        try {
+            currentTaskSize = Integer.parseInt(ConfigUtils.getResourceBundle().getString("CURRENT_TASK_ARRAY_SIZE"));
+        } catch (NumberFormatException e) {
+            currentTaskSize = 3;
+            e.printStackTrace();
+        }
+
+        try {
+            nodeNumber = Integer.parseInt(ConfigUtils.getResourceBundle("nodes").getString("NODES"));
+        } catch (NumberFormatException e) {
+            nodeNumber = 0;
+            e.printStackTrace();
+        }
+
+        currentTasks = new CurrentTask(currentTaskSize);
+        currentTasks.setNodes(nodeNumber);
+
     }
 
 
@@ -96,7 +116,7 @@ public class TaskScheduler {
      * $(11): postRegexDir
      * $(12): configPath
      */
-    private void setTaskInfo() {
+    private void setTaskInfo(TaskModel currentTask) {
 
         command = sh +
                 "  " + currentTask.getTaskCrawlerDepth() +
@@ -112,13 +132,12 @@ public class TaskScheduler {
                 "  " + currentTask.getTaskRegexFilterPath() +
                 "  " + currentTask.getTaskConfigPath();
 
-        int nodes = Integer.parseInt(ConfigUtils.getResourceBundle("nodes").getString("NODES"));
 
         NodeInfo nodeInfo;
 
         nodeInfoList = new ArrayList<>();
 
-        for (int i = 1; i <= nodes; ++i) {
+        for (int i = 1; i <= nodeNumber; ++i) {
 
             String info = ConfigUtils.getResourceBundle("nodes").getString("NODE_" + i);
             String[] strings = info.split("::");
@@ -161,21 +180,24 @@ public class TaskScheduler {
             try {
                 ruler.writeBack(this);
 
-                currentTask = ruler.doSchedule(this);
+                currentTasks = ruler.doSchedule(this);
 
-                if (currentTask != null &&
-                        !isCurrentFinish &&
-                        currentTask.getTaskStatus() == TaskStatus.UNCRAWL) {
+                List<TaskModel> tasks = currentTasks.getUncrawlTask();
 
-                    currentTask.setTaskStatus(TaskStatus.CRAWLING);
-                    ((RulerBase) ruler).addToWriteBack(currentTask);
-                    setTaskInfo();
+                for (TaskModel t : tasks) {
+
+                    currentTasks.setTaskStatus(t.getTaskId(), TaskStatus.CRAWLING);
+                    ((RulerBase) ruler).addToWriteBack(t);
+                    setTaskInfo(t);
+
+                    System.out.println("Starting task, Id = [" + t.getTaskId() + "]\n");
 
                     for (NodeInfo node : nodeInfoList) {
 
                         try {
 
-                            System.out.println(node.nodeStart());
+                            String startMsgOut = node.nodeStart();
+                            System.out.println("Start node [" + node.getHostname() + "]\n\t" + startMsgOut);
                             Thread.sleep(1000);
 
                         } catch (Exception ex) {
@@ -183,12 +205,11 @@ public class TaskScheduler {
                             ex.printStackTrace();
                         }
                     }
-                } else if (isCurrentFinish) {
-
-                    ruler.writeBack(this);
-                    System.out.println("finished taskId = " + currentTask.getTaskId());
-                    currentTask = null;
                 }
+
+                currentTasks.taskStatusChecking();
+                currentTasks.taskFinishChecking();
+
 
             } catch (Exception e) {
 
@@ -209,8 +230,12 @@ public class TaskScheduler {
     }
 
 
-    public TaskModel getCurrentTask() {
-        return currentTask;
+    public CurrentTask getCurrentTasks() {
+        return currentTasks;
+    }
+
+    public int getNodeNumber() {
+        return nodeNumber;
     }
 
     public List<NodeInfo> getNodeInfoList() {
@@ -225,13 +250,13 @@ public class TaskScheduler {
         return ruler;
     }
 
-    public void setIsCurrentFinish(boolean isCurrentFinish) {
-        this.isCurrentFinish = isCurrentFinish;
-    }
-
-    public boolean isCurrentFinish() {
-        return isCurrentFinish;
-    }
+//    public void setIsCurrentFinish(boolean isCurrentFinish) {
+//        this.isCurrentFinish = isCurrentFinish;
+//    }
+//
+//    public boolean isCurrentFinish() {
+//        return isCurrentFinish;
+//    }
 
     public HeartbeatUpdater getHeartbeatUpdater() {
         return heartbeatUpdater;

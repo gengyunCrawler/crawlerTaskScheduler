@@ -1,6 +1,7 @@
 package com.gonali.crawlerTask.scheduler.rulers;
 
 import com.gonali.crawlerTask.model.TaskModel;
+import com.gonali.crawlerTask.scheduler.CurrentTask;
 import com.gonali.crawlerTask.scheduler.TaskScheduler;
 
 /**
@@ -9,5 +10,5 @@ import com.gonali.crawlerTask.scheduler.TaskScheduler;
 public interface Ruler {
 
     public void writeBack(TaskScheduler scheduler);
-    public TaskModel  doSchedule(TaskScheduler scheduler);
+    public CurrentTask doSchedule(TaskScheduler scheduler);
 }

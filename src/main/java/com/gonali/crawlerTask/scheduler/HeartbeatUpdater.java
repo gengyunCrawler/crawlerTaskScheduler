@@ -81,7 +81,8 @@ public class HeartbeatUpdater implements Runnable {
                 continue;
             }
             for (int i = 0; i < msgSize; ++i) {
-                if (heartbeatMsgList.get(i).getHostname().equals(
+                if (heartbeatMsgList.get(i).getTaskId().equals(((HeartbeatMsgModel) message).getTaskId())
+                        && heartbeatMsgList.get(i).getHostname().equals(
                         ((HeartbeatMsgModel) message).getHostname()) &&
                         heartbeatMsgList.get(i).getPid() == ((HeartbeatMsgModel) message).getPid()) {
 
@@ -135,13 +136,16 @@ public class HeartbeatUpdater implements Runnable {
         return null;
     }
 
-    public HeartbeatMsgModel getHeartbeatMsg(String hostname, int pid) {
+    public HeartbeatMsgModel getHeartbeatMsg(String taskId, String hostname, int pid) {
 
         try {
             myLock.lock();
 
             for (HeartbeatMsgModel heartbeat : heartbeatMsgList)
-                if (heartbeat.getHostname().equals(hostname) && heartbeat.getPid() == pid)
+                if (heartbeat.getTaskId().equals(taskId) &&
+                        heartbeat.getHostname().equals(hostname) &&
+                        heartbeat.getPid() == pid)
+
                     return heartbeat;
 
         } catch (Exception e) {
@@ -157,14 +161,16 @@ public class HeartbeatUpdater implements Runnable {
     }
 
 
-    public HeartbeatMsgModel setHeartbeatMsg(String hostname, int pid, int statusCode) {
+    public HeartbeatMsgModel setHeartbeatMsg(String taskId, String hostname, int pid, int statusCode) {
 
         try {
             myLock.lock();
 
             int size = heartbeatMsgList.size();
             for (int i = 0; i < size; i++)
-                if (heartbeatMsgList.get(i).getHostname().equals(hostname) && heartbeatMsgList.get(i).getPid() == pid) {
+                if (heartbeatMsgList.get(i).getTaskId().equals(taskId) &&
+                        heartbeatMsgList.get(i).getHostname().equals(hostname) &&
+                        heartbeatMsgList.get(i).getPid() == pid) {
                     HeartbeatMsgModel msg = heartbeatMsgList.get(i).setStatusCode(statusCode);
                     return heartbeatMsgList.set(i, msg);
                 }

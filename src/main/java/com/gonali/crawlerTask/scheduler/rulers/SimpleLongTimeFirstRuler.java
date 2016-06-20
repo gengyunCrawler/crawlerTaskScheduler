@@ -7,6 +7,7 @@ import com.gonali.crawlerTask.model.TaskModel;
 import com.gonali.crawlerTask.model.TaskStatus;
 import com.gonali.crawlerTask.nodes.NodeInfo;
 import com.gonali.crawlerTask.redisQueue.TaskQueue;
+import com.gonali.crawlerTask.scheduler.CurrentTask;
 import com.gonali.crawlerTask.scheduler.HeartbeatUpdater;
 import com.gonali.crawlerTask.scheduler.TaskScheduler;
 
@@ -40,84 +41,45 @@ public class SimpleLongTimeFirstRuler extends RulerBase {
             writeBackEntityList.remove(m);
         }
 
-        if (scheduler.isCurrentFinish())
-            cleanWriteBackEntityList();
+//        if (scheduler.isCurrentFinish())
+//            cleanWriteBackEntityList();
 
     }
 
     @Override
-    public TaskModel doSchedule(TaskScheduler scheduler) {
+    public CurrentTask doSchedule(TaskScheduler scheduler) {
 
-        currentTask = scheduler.getCurrentTask();
-
-        if (currentTaskQueueLength < 3)
+        currentTasks = scheduler.getCurrentTasks();
+        TaskModel task;
+        if (currentTaskQueueLength < 2 * scheduler.getCurrentTasks().getTaskNumber())
             updateTaskQueue();
 
-        if (currentTask == null) {
+        while (currentTasks.isHaveFinishedTask()) {
 
-            currentTask = getTask();
-            if (currentTask == null) {
-                scheduler.setIsCurrentFinish(true);
-                return null;
-            }
-            scheduler.setIsCurrentFinish(false);
-            currentTask.setTaskStartTime(System.currentTimeMillis());
-            currentTask.setTaskStatus(TaskStatus.UNCRAWL);
-            return currentTask;
+            task = getTask();
+
+            if (task == null)
+                break;
+
+            task.setTaskStartTime(System.currentTimeMillis());
+            task.setTaskStatus(TaskStatus.UNCRAWL);
+            currentTasks.addTask(task);
         }
 
-        List<NodeInfo> nodeInfoList = scheduler.getNodeInfoList();
-        int node = nodeInfoList.size();
+
         List<HeartbeatMsgModel> heartbeatList = scheduler.getHeartbeatUpdater().getHeartbeatMsgList();
-
-
-        if (heartbeatList.size() < node) {
-//            System.out.println("here return ......");
-            return currentTask;
-        }
-
         long currentTime = System.currentTimeMillis();
 
         // heartbeat timeout check
-        for (int i = 0; i < node; i++) {
+        for (HeartbeatMsgModel h : heartbeatList) {
 
-            for (HeartbeatMsgModel heartbeat : heartbeatList) {
+            if (currentTime - h.getTime() > 3 * 1000 * HeartbeatUpdater.getCheckInterval())
+                h.setStatusCode(HeartbeatStatusCode.TIMEOUT);
 
-                if (heartbeat.getHostname().equals(nodeInfoList.get(i).getHostname()))
-                    if (currentTime - heartbeat.getTime() > 3 * 1000 * HeartbeatUpdater.getCheckInterval())
-                        scheduler.getHeartbeatUpdater().setHeartbeatMsg(heartbeat.getHostname(), heartbeat.getPid(), HeartbeatStatusCode.TIMEOUT);
-            }
         }
 
-        // current task finished check
-        int finished = HeartbeatStatusCode.CRAWLING;
-        int code = 0;
-        for (HeartbeatMsgModel heartbeat : heartbeatList) {
-            code += heartbeat.getStatusCode();
-        }
-        finished = finished & code;
-
-        if (finished == HeartbeatStatusCode.FINISHED) {
-            System.out.println("finished = " + finished);
-            int size = inQueueTaskIdList.size();
-            for (int i = 0; i < size; i++) {
-                if (inQueueTaskIdList.get(i).equals(currentTask.getTaskId())) {
-                    inQueueTaskIdList.remove(i);
-                    break;
-                }
-            }
-            scheduler.setIsCurrentFinish(true);
-            scheduler.getCurrentTask().setTaskStopTime(System.currentTimeMillis());
-            scheduler.getCurrentTask().setTaskStatus(TaskStatus.CRAWLED);
-            addToWriteBack(scheduler.getCurrentTask());
-            scheduler.getHeartbeatUpdater().resetHeartbeatMsgList();
-
-            //return null;
-        }
-
-        // System.out.println("HeartbeatMseage:\n\t" + JSON.toJSONString(scheduler.getHeartbeatUpdater().getHeartbeatMsgList()));
-        // currentTask.setTaskStatus(TaskStatus.CRAWLING);
-        return currentTask;
+        currentTasks.setHeartbeatList(heartbeatList);
+        return currentTasks;
     }
 
 
@@ -188,11 +150,11 @@ public class SimpleLongTimeFirstRuler extends RulerBase {
     private TaskModel getTask() {
 
         currentTaskQueueLength = TaskQueue.queueLenth();
-
+        TaskModel task;
         if (currentTaskQueueLength > 0) {
 
-            currentTask = TaskQueue.popCrawlerTaskQueue();
-            if (currentTask == null) {
+            task = TaskQueue.popCrawlerTaskQueue();
+            if (task == null) {
                 System.out.println("ERR: Scheduler crashed !!!!");
                 return null;
             }
@@ -203,7 +165,7 @@ public class SimpleLongTimeFirstRuler extends RulerBase {
             return null;
         }
 
-        return currentTask;
+        return task;
     }
 
 

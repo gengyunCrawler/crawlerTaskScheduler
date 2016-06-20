@@ -7,7 +7,8 @@ import com.gonali.crawlerTask.message.Message;
  */
 public class HeartbeatMsgModel implements Message{
 
-    private String hostname;
+    private String taskId;
+    private String hostname;//IP
     private int    pid;
     private int    theads;
     private long   time;
@@ -15,10 +16,20 @@ public class HeartbeatMsgModel implements Message{
 
     public HeartbeatMsgModel(){
 
+        taskId = "";
         hostname = "";
         pid = -1;
         theads = 1;
         statusCode = -1;
+    }
+
+    public String getTaskId() {
+        return taskId;
+    }
+
+    public HeartbeatMsgModel setTaskId(String taskId) {
+        this.taskId = taskId;
+        return this;
     }
 
     public String getHostname() {
