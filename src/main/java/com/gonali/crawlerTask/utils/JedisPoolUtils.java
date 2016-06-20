@@ -16,20 +16,21 @@ import java.io.Serializable;
 public class JedisPoolUtils implements Serializable {
 
     private static JedisPool pool;
-    private  Jedis jedis;
+    private Jedis jedis;
 
 
     private JedisPoolUtils() {
 
+        jedis = null;
     }
 
 
     private static void makepool() throws FileNotFoundException, IOException {
 
-        String redisHost = ConfigUtils.getResourceBundle().getString("REDIS_HOSTNAME");
-        int redisPort = Integer.parseInt(ConfigUtils.getResourceBundle().getString("REDIS_PORT"));
-
         if (pool == null) {
+
+            String redisHost = ConfigUtils.getResourceBundle().getString("REDIS_HOSTNAME");
+            int redisPort = Integer.parseInt(ConfigUtils.getResourceBundle().getString("REDIS_PORT"));
             JedisPoolConfig conf = new JedisPoolConfig();
             conf.setMaxTotal(-1);
             conf.setMaxWaitMillis(60000L);
@@ -43,7 +44,7 @@ public class JedisPoolUtils implements Serializable {
         return pool;
     }
 
-    public static Jedis getJedis() throws FileNotFoundException, IOException{
+    public static Jedis getJedis() throws FileNotFoundException, IOException {
         JedisPoolUtils jedisPoolUtils = new JedisPoolUtils();
         if (jedisPoolUtils.jedis == null) {
             jedisPoolUtils.jedis = getJedisPool().getResource();
@@ -57,6 +58,11 @@ public class JedisPoolUtils implements Serializable {
     }
 
     public static void cleanJedis(Jedis jedis) {
+        if (pool != null) {
+            pool.returnResource(jedis);
+            return;
+        }
+
         jedis.close();
     }
 }

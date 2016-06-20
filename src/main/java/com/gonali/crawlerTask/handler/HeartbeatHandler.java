@@ -50,7 +50,7 @@ public class HeartbeatHandler extends LoggerUtil implements SocketHandler {
 
                 jsonString += new String(charBuffer, 0, readCharSize);
 
-                System.out.println("Server Received:\n=================\n" + jsonString + "\n=================\n");
+                System.out.println("Heartbeat Received:\n=================\n" + jsonString + "\n=================\n");
                 out.println(HandlerMessage.getMessage("confirm", true));
 
 

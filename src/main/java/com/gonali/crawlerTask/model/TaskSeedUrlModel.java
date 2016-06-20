@@ -24,8 +24,6 @@ public class TaskSeedUrlModel implements Serializable{
 
     public TaskSeedUrlModel(String seedUrlJson){
 
-        size = 0;
-        seedUrlList = new ArrayList<>();
 
         try {
 
@@ -34,6 +32,8 @@ public class TaskSeedUrlModel implements Serializable{
 
         }catch (Exception ex){
 
+            seedUrlList = new ArrayList<>();
+            size = seedUrlList.size();
             ex.printStackTrace();
         }
 

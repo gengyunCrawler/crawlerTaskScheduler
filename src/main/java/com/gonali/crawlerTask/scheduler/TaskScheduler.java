@@ -154,37 +154,45 @@ public class TaskScheduler {
         cleanTaskQueue();
         cleanHeartbeatMsgQueue();
         new Thread(heartbeatUpdater).start();
+
         while (true) {
 
 
-            ruler.writeBack(this);
-
-            currentTask = ruler.doSchedule(this);
-
-            if (currentTask != null &&
-                    !isCurrentFinish &&
-                    currentTask.getTaskStatus() == TaskStatus.UNCRAWL) {
-
-                currentTask.setTaskStatus(TaskStatus.CRAWLING);
-                ((RulerBase) ruler).addToWriteBack(currentTask);
-                setTaskInfo();
-
-                for (NodeInfo node : nodeInfoList) {
-
-                    try {
-
-                        System.out.println(node.nodeStart());
-                        Thread.sleep(1000);
-
-                    } catch (Exception ex) {
-
-                        ex.printStackTrace();
-                    }
-                }
-            } else if (isCurrentFinish) {
-
+            try {
                 ruler.writeBack(this);
-                currentTask = null;
+
+                currentTask = ruler.doSchedule(this);
+
+                if (currentTask != null &&
+                        !isCurrentFinish &&
+                        currentTask.getTaskStatus() == TaskStatus.UNCRAWL) {
+
+                    currentTask.setTaskStatus(TaskStatus.CRAWLING);
+                    ((RulerBase) ruler).addToWriteBack(currentTask);
+                    setTaskInfo();
+
+                    for (NodeInfo node : nodeInfoList) {
+
+                        try {
+
+                            System.out.println(node.nodeStart());
+                            Thread.sleep(1000);
+
+                        } catch (Exception ex) {
+
+                            ex.printStackTrace();
+                        }
+                    }
+                } else if (isCurrentFinish) {
+
+                    ruler.writeBack(this);
+                    System.out.println("finished taskId = " + currentTask.getTaskId());
+                    currentTask = null;
+                }
+
+            } catch (Exception e) {
+
+                e.printStackTrace();
             }
 
             try {

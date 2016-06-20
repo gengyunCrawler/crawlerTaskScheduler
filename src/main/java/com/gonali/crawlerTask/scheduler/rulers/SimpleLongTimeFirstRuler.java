@@ -1,6 +1,5 @@
 package com.gonali.crawlerTask.scheduler.rulers;
 
-import com.alibaba.fastjson.JSON;
 import com.gonali.crawlerTask.handler.model.HeartbeatMsgModel;
 import com.gonali.crawlerTask.handler.model.HeartbeatStatusCode;
 import com.gonali.crawlerTask.model.EntityModel;
@@ -11,7 +10,6 @@ import com.gonali.crawlerTask.redisQueue.TaskQueue;
 import com.gonali.crawlerTask.scheduler.HeartbeatUpdater;
 import com.gonali.crawlerTask.scheduler.TaskScheduler;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -73,8 +71,10 @@ public class SimpleLongTimeFirstRuler extends RulerBase {
         List<HeartbeatMsgModel> heartbeatList = scheduler.getHeartbeatUpdater().getHeartbeatMsgList();
 
 
-        if (heartbeatList.size() < node)
+        if (heartbeatList.size() < node) {
+//            System.out.println("here return ......");
             return currentTask;
+        }
 
         long currentTime = System.currentTimeMillis();
 
@@ -91,13 +91,14 @@ public class SimpleLongTimeFirstRuler extends RulerBase {
 
         // current task finished check
         int finished = HeartbeatStatusCode.CRAWLING;
-
+        int code = 0;
         for (HeartbeatMsgModel heartbeat : heartbeatList) {
-            int code = heartbeat.getStatusCode();
-            finished = finished & code;
+            code += heartbeat.getStatusCode();
         }
+        finished = finished & code;
 
         if (finished == HeartbeatStatusCode.FINISHED) {
+            System.out.println("finished = " + finished);
             int size = inQueueTaskIdList.size();
             for (int i = 0; i < size; i++) {
                 if (inQueueTaskIdList.get(i).equals(currentTask.getTaskId())) {
@@ -111,11 +112,11 @@ public class SimpleLongTimeFirstRuler extends RulerBase {
             addToWriteBack(scheduler.getCurrentTask());
             scheduler.getHeartbeatUpdater().resetHeartbeatMsgList();
 
-            return null;
+            //return null;
         }
 
-       // System.out.println("HeartbeatMseage:\n\t" + JSON.toJSONString(scheduler.getHeartbeatUpdater().getHeartbeatMsgList()));
-       // currentTask.setTaskStatus(TaskStatus.CRAWLING);
+        // System.out.println("HeartbeatMseage:\n\t" + JSON.toJSONString(scheduler.getHeartbeatUpdater().getHeartbeatMsgList()));
+        // currentTask.setTaskStatus(TaskStatus.CRAWLING);
         return currentTask;
     }
 

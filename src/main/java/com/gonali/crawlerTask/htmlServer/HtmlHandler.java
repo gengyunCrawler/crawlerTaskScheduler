@@ -36,6 +36,7 @@ public class HtmlHandler implements HttpHandler {
 
         String response = this.dataResponse.responseContents(exchange, this.scheduler);
         exchange.sendResponseHeaders(200, response.length());
+        exchange.setAttribute("Content-Length", response.length());
         OutputStream os = exchange.getResponseBody();
         os.write(response.getBytes());
         os.close();

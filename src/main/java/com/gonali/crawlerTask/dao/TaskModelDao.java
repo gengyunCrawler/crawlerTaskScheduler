@@ -60,7 +60,7 @@ public class TaskModelDao extends LoggerUtil implements QueryDao {
 
                 e.printStackTrace();
 
-                seedUrls = "[\"seedUrl\"]";
+                seedUrls = "[\"seedUrl\",\"seedUrl\"]";
 
             }
 
