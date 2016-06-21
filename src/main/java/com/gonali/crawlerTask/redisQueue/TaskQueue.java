@@ -15,7 +15,7 @@ public class TaskQueue {
 
 
     private static final String QUEUE_KEY = QueueKeys.QUEUE_KEY_TASK;
-    private static final int dbIndex = 3;
+    private static final int dbIndex = 7;
 
     private TaskQueue() {
 

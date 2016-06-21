@@ -14,7 +14,7 @@ public class HeartbeatMsgQueue extends LoggerUtil implements MessageQueue {
 
 
     private static final String QUEUE_KEY = QueueKeys.QUEUE_KEY_HEARTBEAT_MESSAGE;
-    private static final int dbIndex = 3;
+    private static final int dbIndex = 7;
 
     private Jedis jedis;
     private HeartbeatMsgModel heartbeat;

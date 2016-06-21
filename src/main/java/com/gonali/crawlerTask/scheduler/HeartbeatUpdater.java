@@ -1,6 +1,7 @@
 package com.gonali.crawlerTask.scheduler;
 
 import com.gonali.crawlerTask.handler.model.HeartbeatMsgModel;
+import com.gonali.crawlerTask.handler.model.HeartbeatStatusCode;
 import com.gonali.crawlerTask.message.Message;
 import com.gonali.crawlerTask.redisQueue.HeartbeatMsgQueue;
 import com.gonali.crawlerTask.utils.ConfigUtils;
@@ -19,6 +20,7 @@ public class HeartbeatUpdater implements Runnable {
     private HeartbeatMsgQueue messageQueue;
     private Message message;
     private static int checkInterval;
+    private static int maxTimeoutCount;
     private Lock myLock;
 
 
@@ -31,6 +33,16 @@ public class HeartbeatUpdater implements Runnable {
 
             e.printStackTrace();
             checkInterval = 10;
+        }
+
+        try {
+
+            maxTimeoutCount = Integer.parseInt(ConfigUtils.getResourceBundle("nodes").getString("NODES_MAX_HEARTBEAT_TIMEOUT_COUNT"));
+
+        } catch (NumberFormatException e) {
+
+            e.printStackTrace();
+            maxTimeoutCount = 10;
         }
     }
 
@@ -47,22 +59,11 @@ public class HeartbeatUpdater implements Runnable {
 
         while (true) {
 
-            try {
-
-                myLock.lock();
-                updateMsg();
-
-            } catch (Exception e) {
-
-                e.printStackTrace();
-
-            } finally {
-
-                myLock.unlock();
-            }
+            updateHeartbeatMsg();
+            heartbeatTimeoutCheck();
 
             try {
-                Thread.sleep(checkInterval * 1000);
+                Thread.sleep(checkInterval * 100);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -71,30 +72,70 @@ public class HeartbeatUpdater implements Runnable {
 
     }
 
-    private void updateMsg() {
+    private void updateHeartbeatMsg() {
 
-        int msgSize = heartbeatMsgList.size();
+        try {
+            myLock.lock();
+            int msgSize = heartbeatMsgList.size();
+            boolean isHave;
 
-        while ((message = messageQueue.popMessage()) != null) {
-            if (msgSize == 0) {
-                heartbeatMsgList.add((HeartbeatMsgModel) message);
-                continue;
-            }
-            for (int i = 0; i < msgSize; ++i) {
-                if (heartbeatMsgList.get(i).getTaskId().equals(((HeartbeatMsgModel) message).getTaskId())
-                        && heartbeatMsgList.get(i).getHostname().equals(
-                        ((HeartbeatMsgModel) message).getHostname()) &&
-                        heartbeatMsgList.get(i).getPid() == ((HeartbeatMsgModel) message).getPid()) {
-
-                    heartbeatMsgList.set(i, (HeartbeatMsgModel) message);
+            while ((message = messageQueue.popMessage()) != null) {
+                if (msgSize == 0) {
+                    heartbeatMsgList.add((HeartbeatMsgModel) message);
+                    msgSize = heartbeatMsgList.size();
                     continue;
+                }
+                isHave = false;
+                for (int i = 0; i < msgSize; ++i) {
+                    if (heartbeatMsgList.get(i).getTaskId().equals(((HeartbeatMsgModel) message).getTaskId())
+                            && heartbeatMsgList.get(i).getHostname().equals(
+                            ((HeartbeatMsgModel) message).getHostname()) &&
+                            heartbeatMsgList.get(i).getPid() == ((HeartbeatMsgModel) message).getPid()) {
 
+                        heartbeatMsgList.set(i, (HeartbeatMsgModel) message);
+
+                        isHave = true;
+
+                    }
                 }
 
-                if (i == msgSize - 1)
+                if (!isHave) {
                     heartbeatMsgList.add((HeartbeatMsgModel) message);
-            }
+                    msgSize = heartbeatMsgList.size();
+                }
 
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+
+            myLock.unlock();
+        }
+    }
+
+    public void heartbeatTimeoutCheck() {
+
+        try {
+            myLock.lock();
+
+            long currentTime = System.currentTimeMillis();
+            int size = heartbeatMsgList.size();
+            HeartbeatMsgModel h;
+            for (int i = 0; i < size; i++) {
+                h = heartbeatMsgList.get(i);
+                if (currentTime - h.getTime() > 3 * 1000 * HeartbeatUpdater.getCheckInterval() &&
+                        h.getStatusCode() != HeartbeatStatusCode.FINISHED) {
+                    h.setStatusCode(HeartbeatStatusCode.TIMEOUT);
+                    h.setTimeoutCount(h.getTimeoutCount() + 1);
+                    heartbeatMsgList.set(i, h);
+                }
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+
+            myLock.unlock();
         }
     }
 
@@ -112,6 +153,29 @@ public class HeartbeatUpdater implements Runnable {
 
             myLock.unlock();
         }
+    }
+
+    public void cleanFinishedHeartbeat(String taskId, String hostname, int pid) {
+
+        try {
+            myLock.lock();
+
+            for (HeartbeatMsgModel msg : this.heartbeatMsgList) {
+
+                if (msg.getTaskId().equals(taskId) &&
+                        msg.getHostname().equals(hostname) &&
+                        msg.getPid() == pid)
+                    this.heartbeatMsgList.remove(msg);
+            }
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+        } finally {
+
+            myLock.unlock();
+        }
+
     }
 
     public List<HeartbeatMsgModel> getHeartbeatMsgList() {
@@ -187,6 +251,9 @@ public class HeartbeatUpdater implements Runnable {
         return null;
     }
 
+    public static int getMaxTimeoutCount(){
+        return maxTimeoutCount;
+    }
 
     public static int getCheckInterval() {
         return checkInterval;

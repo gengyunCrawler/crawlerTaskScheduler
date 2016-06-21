@@ -16,16 +16,16 @@ public class SimpleResponse extends ResposeBase {
 
     @Override
     public String responseContents(HttpExchange exchange, TaskScheduler scheduler) {
-        String currentTaskId = scheduler.getCurrentTask().getTaskId();
+     /*   String currentTaskId = scheduler.getCurrentTask().getTaskId();
         long currentTaskQueueSize = TaskQueue.queueLenth();
         List<HeartbeatMsgModel> heartbeatMsgModelList = scheduler.getHeartbeatUpdater().getHeartbeatMsgList();
         String s;
         s = "current crawling task id: " + currentTaskId + "<br/><br/>";
         s += "currentTaskQueueSize: " + currentTaskQueueSize + "<br/><br/>";
         for (HeartbeatMsgModel model : heartbeatMsgModelList)
-            s += "Heartbeat: " + JSON.toJSONString(model) + "<br/>";
+            s += "Heartbeat: " + JSON.toJSONString(model) + "<br/>";*/
 
-        return "<center><h1>Crawler Status:</h1><br/> " + s + " </center>";
+        return "<center><h1>Crawler Status:</h1><br/> " + "Testing" + " </center>";
     }
 
 

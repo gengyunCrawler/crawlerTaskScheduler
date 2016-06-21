@@ -13,6 +13,7 @@ public class HeartbeatMsgModel implements Message{
     private int    theads;
     private long   time;
     private int    statusCode;
+    private int    timeoutCount;
 
     public HeartbeatMsgModel(){
 
@@ -21,6 +22,7 @@ public class HeartbeatMsgModel implements Message{
         pid = -1;
         theads = 1;
         statusCode = -1;
+        timeoutCount = 0;
     }
 
     public String getTaskId() {
@@ -74,6 +76,15 @@ public class HeartbeatMsgModel implements Message{
 
     public HeartbeatMsgModel setStatusCode(int statusCode) {
         this.statusCode = statusCode;
+        return this;
+    }
+
+    public int getTimeoutCount() {
+        return timeoutCount;
+    }
+
+    public HeartbeatMsgModel setTimeoutCount(int timeoutCount) {
+        this.timeoutCount = timeoutCount;
         return this;
     }
 

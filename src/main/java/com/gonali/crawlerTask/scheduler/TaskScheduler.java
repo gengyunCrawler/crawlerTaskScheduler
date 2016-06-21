@@ -1,6 +1,7 @@
 package com.gonali.crawlerTask.scheduler;
 
 import com.gonali.crawlerTask.handler.model.HeartbeatMsgModel;
+import com.gonali.crawlerTask.handler.model.HeartbeatStatusCode;
 import com.gonali.crawlerTask.model.TaskModel;
 import com.gonali.crawlerTask.model.TaskStatus;
 import com.gonali.crawlerTask.nodes.NodeInfo;
@@ -21,8 +22,6 @@ public class TaskScheduler {
 
     private static volatile TaskScheduler scheduler;
 
-    //    private TaskModel currentTask;
-//    private TaskTimer taskTimer;
     private CurrentTask currentTasks;
     private HeartbeatUpdater heartbeatUpdater;
     private List<NodeInfo> nodeInfoList;
@@ -30,9 +29,9 @@ public class TaskScheduler {
     private String sh;
     private Ruler ruler;
 
-    private  int nodeNumber;
+    private int nodeNumber;
+    private List<String[]> hostInfoList;
 
-//    private boolean isCurrentFinish;
 
     public static CurrentTask getSchedulerCurrentTask() {
 
@@ -58,7 +57,6 @@ public class TaskScheduler {
 
     private TaskScheduler() {
 
-        //        taskTimer = new TaskTimer();
         heartbeatUpdater = new HeartbeatUpdater();
         try {
 
@@ -68,7 +66,6 @@ public class TaskScheduler {
             sh = "crawlerStart.sh";
             e.printStackTrace();
         }
-//        isCurrentFinish = false;
         int currentTaskSize;
 
         try {
@@ -84,6 +81,20 @@ public class TaskScheduler {
             nodeNumber = 0;
             e.printStackTrace();
         }
+
+
+        hostInfoList = new ArrayList<>();
+
+        try {
+            for (int i = 1; i <= nodeNumber; ++i) {
+                String info = ConfigUtils.getResourceBundle("nodes").getString("NODE_" + i);
+                hostInfoList.add(info.split("::"));
+            }
+        } catch (Exception e) {
+
+            e.printStackTrace();
+        }
+
 
         currentTasks = new CurrentTask(currentTaskSize);
         currentTasks.setNodes(nodeNumber);
@@ -116,7 +127,7 @@ public class TaskScheduler {
      * $(11): postRegexDir
      * $(12): configPath
      */
-    private void setTaskInfo(TaskModel currentTask) {
+    private void setTaskStartInfo(TaskModel currentTask) {
 
         command = sh +
                 "  " + currentTask.getTaskCrawlerDepth() +
@@ -137,16 +148,57 @@ public class TaskScheduler {
 
         nodeInfoList = new ArrayList<>();
 
-        for (int i = 1; i <= nodeNumber; ++i) {
+        for (int i = 0; i < nodeNumber; ++i) {
 
-            String info = ConfigUtils.getResourceBundle("nodes").getString("NODE_" + i);
-            String[] strings = info.split("::");
-            nodeInfo = new NodeInfo(strings[0], strings[1], strings[2], command);
-
+            nodeInfo = new NodeInfo(hostInfoList.get(i)[0], hostInfoList.get(i)[1], hostInfoList.get(i)[2], command);
             nodeInfoList.add(nodeInfo);
         }
 
     }
+
+    private void killTimeoutNodes(CurrentTask currentTasks) {
+
+        NodeInfo nodeInfo;
+        List<HeartbeatMsgModel> heartbeatMsgModelList;
+
+
+        List<TaskModel> taskModelList = currentTasks.getCurrentTaskElements();
+        nodeInfoList = new ArrayList<>();
+
+        for(TaskModel t : taskModelList){
+
+            heartbeatMsgModelList = currentTasks.getHeartbeatList(t.getTaskId());
+
+            for (HeartbeatMsgModel h : heartbeatMsgModelList){
+
+                if (h.getStatusCode() != HeartbeatStatusCode.FINISHED &&
+                        h.getTimeoutCount() > HeartbeatUpdater.getMaxTimeoutCount()){
+
+                    for(String[] ss : hostInfoList){
+                        if (ss[2].equals(h.getHostname())){
+                            nodeInfo = new NodeInfo(ss[0], ss[1], ss[2], "kill -9 " + h.getPid());
+                            nodeInfoList.add(nodeInfo);
+                        }
+                    }
+                }
+            }
+        }
+
+        for(NodeInfo n : nodeInfoList){
+
+            String output = n.nodeExecute();
+
+            System.out.println("===>> kill timeout node, COMMAND = [ " + n.getCommand() + " ]:" + output);
+
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
 
     private void cleanTaskQueue() {
 
@@ -179,26 +231,27 @@ public class TaskScheduler {
 
             try {
                 ruler.writeBack(this);
-
                 currentTasks = ruler.doSchedule(this);
 
                 List<TaskModel> tasks = currentTasks.getUncrawlTask();
 
                 for (TaskModel t : tasks) {
 
-                    currentTasks.setTaskStatus(t.getTaskId(), TaskStatus.CRAWLING);
+                    t.setTaskStatus(TaskStatus.CRAWLING);
+                    currentTasks.setTaskStatus(t.getTaskId(), t.getTaskStatus());
                     ((RulerBase) ruler).addToWriteBack(t);
-                    setTaskInfo(t);
 
-                    System.out.println("Starting task, Id = [" + t.getTaskId() + "]\n");
+                    setTaskStartInfo(t);
+
+                    System.out.println("Starting task, Id = [ " + t.getTaskId() + " ]");
 
                     for (NodeInfo node : nodeInfoList) {
 
                         try {
 
-                            String startMsgOut = node.nodeStart();
+                            String startMsgOut = node.nodeExecute();
                             System.out.println("Start node [" + node.getHostname() + "]\n\t" + startMsgOut);
-                            Thread.sleep(1000);
+                            Thread.sleep(500);
 
                         } catch (Exception ex) {
 
@@ -207,9 +260,14 @@ public class TaskScheduler {
                     }
                 }
 
-                currentTasks.taskStatusChecking();
-                currentTasks.taskFinishChecking();
+                killTimeoutNodes(currentTasks);
 
+                currentTasks.taskStatusChecking();
+                currentTasks.taskNodeTimeoutChecking();
+                currentTasks.taskFinishChecking();
+                currentTasks.cleanFinishedHeartbeat(this.heartbeatUpdater);
+
+                System.out.println("Is CurrentTaskArray have finished task ? : " + currentTasks.isHaveFinishedTask());
 
             } catch (Exception e) {
 
@@ -218,7 +276,7 @@ public class TaskScheduler {
 
             try {
 
-                Thread.sleep(1000);
+                Thread.sleep(500);
 
             } catch (InterruptedException e) {
 
@@ -250,13 +308,6 @@ public class TaskScheduler {
         return ruler;
     }
 
-//    public void setIsCurrentFinish(boolean isCurrentFinish) {
-//        this.isCurrentFinish = isCurrentFinish;
-//    }
-//
-//    public boolean isCurrentFinish() {
-//        return isCurrentFinish;
-//    }
 
     public HeartbeatUpdater getHeartbeatUpdater() {
         return heartbeatUpdater;

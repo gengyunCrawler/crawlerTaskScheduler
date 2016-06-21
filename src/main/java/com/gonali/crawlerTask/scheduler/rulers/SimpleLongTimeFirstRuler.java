@@ -5,12 +5,12 @@ import com.gonali.crawlerTask.handler.model.HeartbeatStatusCode;
 import com.gonali.crawlerTask.model.EntityModel;
 import com.gonali.crawlerTask.model.TaskModel;
 import com.gonali.crawlerTask.model.TaskStatus;
-import com.gonali.crawlerTask.nodes.NodeInfo;
 import com.gonali.crawlerTask.redisQueue.TaskQueue;
 import com.gonali.crawlerTask.scheduler.CurrentTask;
 import com.gonali.crawlerTask.scheduler.HeartbeatUpdater;
 import com.gonali.crawlerTask.scheduler.TaskScheduler;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -27,22 +27,24 @@ public class SimpleLongTimeFirstRuler extends RulerBase {
     @Override
     public void writeBack(TaskScheduler scheduler) {
 
- /*       TaskModel current = scheduler.getCurrentTask();
+        List<TaskModel> currentTasks = scheduler.getCurrentTasks().getCrawledTask();
 
-        if (current != null &&
-                !isListContainsEntity(current) &&
-                current.getTaskStatus() == TaskStatus.CRAWLED) {
+        try {
 
-            addToWriteBack(current);
-        }*/
+            for (TaskModel t : currentTasks)
+                addToWriteBack(t);
 
-        for (EntityModel m : writeBackEntityList) {
-            taskModelDao.update(taskTableName, m);
-            writeBackEntityList.remove(m);
+            for (EntityModel m : writeBackEntityList) {
+                taskModelDao.update(taskTableName, m);
+    //            writeBackEntityList.remove(m);
+            }
+
+            writeBackEntityList = new ArrayList<>();
+
+        } catch (Exception e) {
+            System.out.println("=============>>> writeBack Exception !!!!!!");
+            e.printStackTrace();
         }
-
-//        if (scheduler.isCurrentFinish())
-//            cleanWriteBackEntityList();
 
     }
 
@@ -68,17 +70,9 @@ public class SimpleLongTimeFirstRuler extends RulerBase {
 
 
         List<HeartbeatMsgModel> heartbeatList = scheduler.getHeartbeatUpdater().getHeartbeatMsgList();
-        long currentTime = System.currentTimeMillis();
-
-        // heartbeat timeout check
-        for (HeartbeatMsgModel h : heartbeatList) {
-
-            if (currentTime - h.getTime() > 3 * 1000 * HeartbeatUpdater.getCheckInterval())
-                h.setStatusCode(HeartbeatStatusCode.TIMEOUT);
-
-        }
 
         currentTasks.setHeartbeatList(heartbeatList);
+
         return currentTasks;
     }
 

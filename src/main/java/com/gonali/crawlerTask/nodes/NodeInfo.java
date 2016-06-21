@@ -26,10 +26,11 @@ public class NodeInfo {
         shellUtils = ShellUtils.getShellUtils(this.username, this.password, this.hostname, this.port);
     }
 
-    public String nodeStart() {
+    public String nodeExecute() {
 
         return this.shellUtils.doExecuteShell(command);
     }
+
 
     public String getUsername() {
         return username;
