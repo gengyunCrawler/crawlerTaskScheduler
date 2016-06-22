@@ -1,13 +1,11 @@
 package com.gonali.crawlerTask.scheduler.rulers;
 
 import com.gonali.crawlerTask.handler.model.HeartbeatMsgModel;
-import com.gonali.crawlerTask.handler.model.HeartbeatStatusCode;
 import com.gonali.crawlerTask.model.EntityModel;
 import com.gonali.crawlerTask.model.TaskModel;
 import com.gonali.crawlerTask.model.TaskStatus;
 import com.gonali.crawlerTask.redisQueue.TaskQueue;
 import com.gonali.crawlerTask.scheduler.CurrentTask;
-import com.gonali.crawlerTask.scheduler.HeartbeatUpdater;
 import com.gonali.crawlerTask.scheduler.TaskScheduler;
 
 import java.util.ArrayList;
@@ -36,7 +34,7 @@ public class SimpleLongTimeFirstRuler extends RulerBase {
 
             for (EntityModel m : writeBackEntityList) {
                 taskModelDao.update(taskTableName, m);
-    //            writeBackEntityList.remove(m);
+                //            writeBackEntityList.remove(m);
             }
 
             writeBackEntityList = new ArrayList<>();
@@ -53,7 +51,10 @@ public class SimpleLongTimeFirstRuler extends RulerBase {
 
         currentTasks = scheduler.getCurrentTasks();
         TaskModel task;
-        if (currentTaskQueueLength < 2 * scheduler.getCurrentTasks().getTaskNumber())
+
+        //cleanInQueueTaskId();
+
+        if (getCurrentTaskQueueLength() < 2 * scheduler.getCurrentTasks().getTaskNumber())
             updateTaskQueue();
 
         while (currentTasks.isHaveFinishedTask()) {
@@ -68,6 +69,7 @@ public class SimpleLongTimeFirstRuler extends RulerBase {
             currentTasks.addTask(task);
         }
 
+        cleanInQueueTaskId();
 
         List<HeartbeatMsgModel> heartbeatList = scheduler.getHeartbeatUpdater().getHeartbeatMsgList();
 
@@ -76,40 +78,46 @@ public class SimpleLongTimeFirstRuler extends RulerBase {
         return currentTasks;
     }
 
+    private void cleanInQueueTaskId() {
+
+        List<TaskModel> taskModelList = currentTasks.getCurrentTaskElements();
+        for (TaskModel t : taskModelList) {
+
+            if (isInQueueTaskIdHaveThis(t.getTaskId()))
+                removeInQueueTaskId(t.getTaskId());
+        }
+
+    }
 
     private void updateTaskQueue() {
 
         List<EntityModel> modelList = taskModelDao.selectAll(taskTableName);
+        List<EntityModel> toQueue = new ArrayList<>();
         int size = modelList.size();
-        for (int i = 0; i < size; ) {
+        for (int i = 0; i < size; i++) {
 
-            if (inQueueTaskIdList.contains(((TaskModel) modelList.get(i)).getTaskId())) {
-
-                modelList.remove(i);
-                size = modelList.size();
-                i = 0;
-            } else {
-
-                i++;
+            if (!isInQueueTaskIdHaveThis(((TaskModel) modelList.get(i)).getTaskId())) {
+                toQueue.add(modelList.get(i));
             }
         }
 
-        TaskModel[] sortedModels = sortByTimeAesc(modelList);
+        TaskModel[] sortedModels = sortByTimeAesc(toQueue);
 
         int length = sortedModels.length;
         for (int i = 0; i < length; i++) {
 
-            if (currentTaskQueueLength < maxTaskQueueLength) {
+            if (getCurrentTaskQueueLength() < maxTaskQueueLength) {
 
                 sortedModels[i].setTaskStatus(TaskStatus.INQUEUE);
-                inQueueTaskIdList.add(sortedModels[i].getTaskId());
+                addTaskIdToInQueue(sortedModels[i].getTaskId());
                 TaskQueue.pushCrawlerTaskQueue(sortedModels[i]);
                 addToWriteBack(sortedModels[i]);
-                currentTaskQueueLength = TaskQueue.queueLenth();
+                getCurrentTaskQueueLength();
             } else break;
         }
 
-        currentTaskQueueLength = TaskQueue.queueLenth();
+        getCurrentTaskQueueLength();
+        //cleanInQueueTaskId();
     }
 
 

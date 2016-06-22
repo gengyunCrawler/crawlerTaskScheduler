@@ -113,7 +113,7 @@ public class HeartbeatUpdater implements Runnable {
         }
     }
 
-    public void heartbeatTimeoutCheck() {
+    private void heartbeatTimeoutCheck() {
 
         try {
             myLock.lock();
@@ -137,6 +137,26 @@ public class HeartbeatUpdater implements Runnable {
 
             myLock.unlock();
         }
+    }
+
+    public void cleanMoreTimeoutHeartbeat(int timesOfMaxTimeout){
+
+        try {
+            myLock.lock();
+
+            for(HeartbeatMsgModel h : heartbeatMsgList){
+
+                if (h.getTimeoutCount() > timesOfMaxTimeout * getMaxTimeoutCount()) {
+                    heartbeatMsgList.remove(h);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+
+            myLock.unlock();
+        }
+
     }
 
     public void resetHeartbeatMsgList() {

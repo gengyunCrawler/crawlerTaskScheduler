@@ -4,8 +4,10 @@ import com.alibaba.fastjson.JSON;
 import com.gonali.crawlerTask.htmlServer.model.DataResponse;
 import com.gonali.crawlerTask.htmlServer.model.SimpleResponse;
 import com.gonali.crawlerTask.scheduler.TaskScheduler;
+import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+import com.sun.xml.internal.messaging.saaj.packaging.mime.Header;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,10 +37,25 @@ public class HtmlHandler implements HttpHandler {
     public void handle(HttpExchange exchange) throws IOException {
 
         String response = this.dataResponse.responseContents(exchange, this.scheduler);
-        exchange.sendResponseHeaders(200, response.length());
-        exchange.setAttribute("Content-Length", response.length());
+        Headers responseHeaders = exchange.getResponseHeaders();
+        responseHeaders.set("Content-Type", "text/html");
+        responseHeaders.set("Content-Length", Integer.toString(response.getBytes().length));
+        responseHeaders.set("Accept-Ranges", "bytes");
+
         OutputStream os = exchange.getResponseBody();
-        os.write(response.getBytes());
-        os.close();
+        try {
+            exchange.sendResponseHeaders(200, response.getBytes().length);
+            os.write(response.getBytes());
+            os.flush();
+        } catch (Exception ex) {
+
+            ex.printStackTrace();
+
+        }finally {
+
+            os.close();
+        }
+
+
     }
 }

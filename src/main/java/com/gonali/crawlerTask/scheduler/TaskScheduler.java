@@ -165,36 +165,44 @@ public class TaskScheduler {
         List<TaskModel> taskModelList = currentTasks.getCurrentTaskElements();
         nodeInfoList = new ArrayList<>();
 
-        for(TaskModel t : taskModelList){
+        try {
+            for(TaskModel t : taskModelList){
 
-            heartbeatMsgModelList = currentTasks.getHeartbeatList(t.getTaskId());
+                heartbeatMsgModelList = currentTasks.getHeartbeatList(t.getTaskId());
 
-            for (HeartbeatMsgModel h : heartbeatMsgModelList){
+                for (HeartbeatMsgModel h : heartbeatMsgModelList){
 
-                if (h.getStatusCode() != HeartbeatStatusCode.FINISHED &&
-                        h.getTimeoutCount() > HeartbeatUpdater.getMaxTimeoutCount()){
+                    if (h.getStatusCode() != HeartbeatStatusCode.FINISHED &&
+                            h.getTimeoutCount() > HeartbeatUpdater.getMaxTimeoutCount()){
 
-                    for(String[] ss : hostInfoList){
-                        if (ss[2].equals(h.getHostname())){
-                            nodeInfo = new NodeInfo(ss[0], ss[1], ss[2], "kill -9 " + h.getPid());
-                            nodeInfoList.add(nodeInfo);
+                        for(String[] ss : hostInfoList){
+                            if (ss[2].equals(h.getHostname())){
+                                nodeInfo = new NodeInfo(ss[0], ss[1], ss[2], "kill -9 " + h.getPid());
+                                nodeInfoList.add(nodeInfo);
+                            }
                         }
                     }
                 }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
-        for(NodeInfo n : nodeInfoList){
+        try {
+            for(NodeInfo n : nodeInfoList){
 
-            String output = n.nodeExecute();
+                String output = n.nodeExecute();
 
-            System.out.println("===>> kill timeout node, COMMAND = [ " + n.getCommand() + " ]:" + output);
+                System.out.println("===>> kill timeout node, COMMAND = [ " + n.getCommand() + " ]:" + output);
 
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -267,6 +275,8 @@ public class TaskScheduler {
                 currentTasks.taskFinishChecking();
                 currentTasks.cleanFinishedHeartbeat(this.heartbeatUpdater);
 
+                heartbeatUpdater.cleanMoreTimeoutHeartbeat(3);
+
                 System.out.println("Is CurrentTaskArray have finished task ? : " + currentTasks.isHaveFinishedTask());
 
             } catch (Exception e) {
@@ -287,6 +297,10 @@ public class TaskScheduler {
 
     }
 
+    public List<String[]> getHostInfoList() {
+
+        return hostInfoList;
+    }
 
     public CurrentTask getCurrentTasks() {
         return currentTasks;

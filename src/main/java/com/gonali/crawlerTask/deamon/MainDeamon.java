@@ -38,17 +38,14 @@ public class MainDeamon {
         Thread taskDeamon = new Thread(this.taskDeamon.setRuler(ruler));
         Thread htmlDeamon = new Thread(this.htmlDeamon);
 
-/*        heartbeatDeamon.setDaemon(true);
-        taskDeamon.setDaemon(true);
-        htmlDeamon.setDaemon(true);*/
 
         heartbeatDeamon.start();
         taskDeamon.start();
         htmlDeamon.start();
 
 
-        System.out.println("HtmlDeamon Id : " + heartbeatDeamon.getId());
-        System.out.println("HtmlDeamon Id : " + htmlDeamon.getId());
-        System.out.println("Hi! MainDeamon");
+        System.out.println("HeartbeatServer Deamon Id : " + heartbeatDeamon.getId());
+        System.out.println("HtmlServer      Deamon Id : " + htmlDeamon.getId());
+        System.out.println("Hi! Scheduler MainDeamon!");
     }
 }
