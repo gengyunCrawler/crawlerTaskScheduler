@@ -40,7 +40,7 @@ public class SimpleLongTimeFirstRuler extends RulerBase {
             writeBackEntityList = new ArrayList<>();
 
         } catch (Exception e) {
-            System.out.println("=============>>> writeBack Exception !!!!!!");
+            System.out.println("Exception: at SimpleLongTimeFirstRuler.java, method writeBack().");
             e.printStackTrace();
         }
 
@@ -67,9 +67,10 @@ public class SimpleLongTimeFirstRuler extends RulerBase {
             task.setTaskStartTime(System.currentTimeMillis());
             task.setTaskStatus(TaskStatus.UNCRAWL);
             currentTasks.addTask(task);
+            removeInQueueTaskId(task.getTaskId());
         }
 
-        cleanInQueueTaskId();
+        //cleanInQueueTaskId();
 
         List<HeartbeatMsgModel> heartbeatList = scheduler.getHeartbeatUpdater().getHeartbeatMsgList();
 
@@ -78,7 +79,7 @@ public class SimpleLongTimeFirstRuler extends RulerBase {
         return currentTasks;
     }
 
-    private void cleanInQueueTaskId() {
+/*    private void cleanInQueueTaskId() {
 
         List<TaskModel> taskModelList = currentTasks.getCurrentTaskElements();
         for (TaskModel t : taskModelList) {
@@ -87,7 +88,7 @@ public class SimpleLongTimeFirstRuler extends RulerBase {
                 removeInQueueTaskId(t.getTaskId());
         }
 
-    }
+    }*/
 
     private void updateTaskQueue() {
 
@@ -106,13 +107,13 @@ public class SimpleLongTimeFirstRuler extends RulerBase {
         int length = sortedModels.length;
         for (int i = 0; i < length; i++) {
 
-            if (getCurrentTaskQueueLength() < maxTaskQueueLength) {
+            if (getCurrentTaskQueueLength() < getMaxTaskQueueLength()) {
 
                 sortedModels[i].setTaskStatus(TaskStatus.INQUEUE);
                 addTaskIdToInQueue(sortedModels[i].getTaskId());
                 TaskQueue.pushCrawlerTaskQueue(sortedModels[i]);
                 addToWriteBack(sortedModels[i]);
-                getCurrentTaskQueueLength();
+                //getCurrentTaskQueueLength();
             } else break;
         }
 
@@ -157,7 +158,7 @@ public class SimpleLongTimeFirstRuler extends RulerBase {
 
             task = TaskQueue.popCrawlerTaskQueue();
             if (task == null) {
-                System.out.println("ERR: Scheduler crashed !!!!");
+                System.out.println("ERROR: Scheduler crashed !!!! at SimpleLongTimeFirstRuler.java, method getTask().");
                 return null;
             }
             currentTaskQueueLength = TaskQueue.queueLenth();

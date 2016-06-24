@@ -1,16 +1,17 @@
 package com.gonali.crawlerTask.redisQueue;
 
+import com.alibaba.fastjson.JSON;
 import com.gonali.crawlerTask.handler.model.HeartbeatMsgModel;
 import com.gonali.crawlerTask.message.Message;
-import com.gonali.crawlerTask.utils.JedisPoolUtils;
-import com.gonali.crawlerTask.utils.LoggerUtil;
+import com.gonali.crawlerTask.utils.RedisJedisPoolUtils;
+import com.gonali.crawlerTask.utils.LoggerUtils;
 import com.gonali.crawlerTask.utils.ObjectSerializeUtils;
 import redis.clients.jedis.Jedis;
 
 /**
  * Created by TianyuanPan on 6/4/16.
  */
-public class HeartbeatMsgQueue extends LoggerUtil implements MessageQueue {
+public class HeartbeatMsgQueue extends LoggerUtils implements MessageQueue {
 
 
     private static final String QUEUE_KEY = QueueKeys.QUEUE_KEY_HEARTBEAT_MESSAGE;
@@ -36,8 +37,9 @@ public class HeartbeatMsgQueue extends LoggerUtil implements MessageQueue {
     public Message pushMessage() {
 
         try {
-            byte[] bytes = ObjectSerializeUtils.serializeToBytes(this.heartbeat);
-            jedis = JedisPoolUtils.getJedis();
+            String jsonMsg = JSON.toJSONString(this.heartbeat);
+            byte[] bytes = ObjectSerializeUtils.serializeToBytes(jsonMsg);
+            jedis = RedisJedisPoolUtils.getJedis();
             jedis.select(dbIndex);
             jedis.lpush(QUEUE_KEY.getBytes(), bytes);
 
@@ -47,7 +49,7 @@ public class HeartbeatMsgQueue extends LoggerUtil implements MessageQueue {
 
         } finally {
 
-            JedisPoolUtils.cleanJedis(jedis);
+            RedisJedisPoolUtils.cleanJedis(jedis);
         }
 
         return heartbeat;
@@ -58,14 +60,16 @@ public class HeartbeatMsgQueue extends LoggerUtil implements MessageQueue {
     public Message popMessage() {
 
         try {
-            jedis = JedisPoolUtils.getJedis();
+            jedis = RedisJedisPoolUtils.getJedis();
             jedis.select(dbIndex);
             byte[] bytes = jedis.rpop(QueueKeys.QUEUE_KEY_HEARTBEAT_MESSAGE.getBytes());
 
             if (bytes == null)
                 return null;
 
-            heartbeat = (HeartbeatMsgModel) ObjectSerializeUtils.getEntityFromBytes(bytes);
+            //System.out.println("bytes:" + bytes);
+            String jsonMsg = (String) ObjectSerializeUtils.getEntityFromBytes(bytes);
+            heartbeat = JSON.parseObject(jsonMsg, HeartbeatMsgModel.class);
 
             return heartbeat;
 
@@ -75,7 +79,7 @@ public class HeartbeatMsgQueue extends LoggerUtil implements MessageQueue {
 
         } finally {
 
-            JedisPoolUtils.cleanJedis(jedis);
+            RedisJedisPoolUtils.cleanJedis(jedis);
         }
 
         return null;

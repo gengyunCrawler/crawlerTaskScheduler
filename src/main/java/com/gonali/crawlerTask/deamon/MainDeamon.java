@@ -34,17 +34,16 @@ public class MainDeamon {
     public void appStart(Ruler ruler) {
 
 
-        Thread heartbeatDeamon = new Thread(this.hearbeatDeamon);
+       // Thread heartbeatDeamon = new Thread(this.hearbeatDeamon);
         Thread taskDeamon = new Thread(this.taskDeamon.setRuler(ruler));
         Thread htmlDeamon = new Thread(this.htmlDeamon);
 
-
-        heartbeatDeamon.start();
+       // heartbeatDeamon.start();
         taskDeamon.start();
         htmlDeamon.start();
 
 
-        System.out.println("HeartbeatServer Deamon Id : " + heartbeatDeamon.getId());
+       //  System.out.println("HeartbeatServer Deamon Id : " + heartbeatDeamon.getId());
         System.out.println("HtmlServer      Deamon Id : " + htmlDeamon.getId());
         System.out.println("Hi! Scheduler MainDeamon!");
     }

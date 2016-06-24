@@ -166,17 +166,17 @@ public class TaskScheduler {
         nodeInfoList = new ArrayList<>();
 
         try {
-            for(TaskModel t : taskModelList){
+            for (TaskModel t : taskModelList) {
 
                 heartbeatMsgModelList = currentTasks.getHeartbeatList(t.getTaskId());
 
-                for (HeartbeatMsgModel h : heartbeatMsgModelList){
+                for (HeartbeatMsgModel h : heartbeatMsgModelList) {
 
                     if (h.getStatusCode() != HeartbeatStatusCode.FINISHED &&
-                            h.getTimeoutCount() > HeartbeatUpdater.getMaxTimeoutCount()){
+                            h.getTimeoutCount() > HeartbeatUpdater.getMaxTimeoutCount()) {
 
-                        for(String[] ss : hostInfoList){
-                            if (ss[2].equals(h.getHostname())){
+                        for (String[] ss : hostInfoList) {
+                            if (ss[2].equals(h.getHostname())) {
                                 nodeInfo = new NodeInfo(ss[0], ss[1], ss[2], "kill -9 " + h.getPid());
                                 nodeInfoList.add(nodeInfo);
                             }
@@ -185,11 +185,12 @@ public class TaskScheduler {
                 }
             }
         } catch (Exception e) {
+            System.out.println("Exception: at TaskScheduler.java, method killTimeoutNodes(...) A.");
             e.printStackTrace();
         }
 
         try {
-            for(NodeInfo n : nodeInfoList){
+            for (NodeInfo n : nodeInfoList) {
 
                 String output = n.nodeExecute();
 
@@ -202,10 +203,10 @@ public class TaskScheduler {
                 }
             }
         } catch (Exception e) {
+            System.out.println("Exception: at TaskScheduler.java, method killTimeoutNodes(...) B.");
             e.printStackTrace();
         }
     }
-
 
 
     private void cleanTaskQueue() {
@@ -258,11 +259,11 @@ public class TaskScheduler {
                         try {
 
                             String startMsgOut = node.nodeExecute();
-                            System.out.println("Start node [" + node.getHostname() + "]\n\t" + startMsgOut);
-                            Thread.sleep(500);
+                            System.out.println("Starting node [" + node.getHostname() + "]\noutput: {\n" + startMsgOut + "}");
+                            Thread.sleep(100);
 
                         } catch (Exception ex) {
-
+                            System.out.println("Exception: at TaskScheduler.java, method schedulerStart() A.");
                             ex.printStackTrace();
                         }
                     }
@@ -272,15 +273,15 @@ public class TaskScheduler {
 
                 currentTasks.taskStatusChecking();
                 currentTasks.taskNodeTimeoutChecking();
-                currentTasks.taskFinishChecking();
+                currentTasks.taskFinishedChecking();
                 currentTasks.cleanFinishedHeartbeat(this.heartbeatUpdater);
 
                 heartbeatUpdater.cleanMoreTimeoutHeartbeat(3);
 
-                System.out.println("Is CurrentTaskArray have finished task ? : " + currentTasks.isHaveFinishedTask());
+                //System.out.println("Is CurrentTaskArray have finished task ? : " + currentTasks.isHaveFinishedTask());
 
             } catch (Exception e) {
-
+                System.out.println("Exception: at TaskScheduler.java, method schedulerStart() B.");
                 e.printStackTrace();
             }
 

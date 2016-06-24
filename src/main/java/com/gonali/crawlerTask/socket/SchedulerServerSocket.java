@@ -1,9 +1,10 @@
 package com.gonali.crawlerTask.socket;
 
-import com.gonali.crawlerTask.socket.handler.ServerConsoleHander;
+import com.gonali.crawlerTask.socket.handler.ServerConsoleHandler;
 import com.gonali.crawlerTask.socket.handler.SocketHandler;
-import com.gonali.crawlerTask.utils.LoggerUtil;
+import com.gonali.crawlerTask.utils.LoggerUtils;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -13,7 +14,7 @@ import java.util.concurrent.Executors;
 /**
  * Created by TianyuanPan on 6/4/16.
  */
-public class SchedulerServerSocket extends LoggerUtil {
+public class SchedulerServerSocket extends LoggerUtils {
 
 
     private ServerSocket serverSocket;
@@ -28,7 +29,7 @@ public class SchedulerServerSocket extends LoggerUtil {
         this.address = address;
         this.port = port;
         executeService = Executors.newFixedThreadPool(poolSize);
-        handler = new ServerConsoleHander();
+        handler = new ServerConsoleHandler();
     }
 
 
@@ -53,13 +54,20 @@ public class SchedulerServerSocket extends LoggerUtil {
 
             while (true) {
 
-                socket = serverSocket.accept(); // this accept is blocking.
-                executeService.submit(new Runnable() {
-                    public void run() {
+                try {
+                    socket = serverSocket.accept(); // this accept is blocking.
 
-                        handler.doHandle(socket);
-                    }
-                });
+                    executeService.submit(new Runnable() {
+                        public void run() {
+
+                            handler.doHandle(socket);
+                        }
+                    });
+
+                } catch (IOException e) {
+                    System.out.println("Scheduler Exception !!!!");
+                    e.printStackTrace();
+                }
             }
 
 

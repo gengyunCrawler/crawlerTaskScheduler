@@ -1,7 +1,7 @@
 package com.gonali.crawlerTask.socketTest;
 
 import com.gonali.crawlerTask.socket.SchedulerServerSocket;
-import com.gonali.crawlerTask.socket.handler.ServerConsoleHander;
+import com.gonali.crawlerTask.socket.handler.ServerConsoleHandler;
 
 import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
@@ -22,7 +22,7 @@ public class TestSchedulerServerSocket {
             System.out.println("Pid is:" + pid);
 
             SchedulerServerSocket.getSchedulerServerSocket(InetAddress.getByName("0.0.0.0"), 10080, 10)
-                    .registerHandler(new ServerConsoleHander()).serverStart();
+                    .registerHandler(new ServerConsoleHandler()).serverStart();
 
         } catch (Exception ex) {
             ex.printStackTrace();

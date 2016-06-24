@@ -1,16 +1,13 @@
 package com.gonali.crawlerTask.htmlServer;
 
-import com.alibaba.fastjson.JSON;
 import com.gonali.crawlerTask.htmlServer.model.DataResponse;
 import com.gonali.crawlerTask.htmlServer.model.SimpleResponse;
 import com.gonali.crawlerTask.scheduler.TaskScheduler;
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import com.sun.xml.internal.messaging.saaj.packaging.mime.Header;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
@@ -21,13 +18,13 @@ public class HtmlHandler implements HttpHandler {
     private TaskScheduler scheduler;
     private DataResponse dataResponse;
 
-    public HtmlHandler(){
+    public HtmlHandler() {
 
         scheduler = TaskScheduler.createTaskScheduler();
         dataResponse = new SimpleResponse();
     }
 
-    public void setDataResponse(DataResponse response){
+    public void setDataResponse(DataResponse response) {
 
         if (response != null)
             this.dataResponse = response;
@@ -51,7 +48,7 @@ public class HtmlHandler implements HttpHandler {
 
             ex.printStackTrace();
 
-        }finally {
+        } finally {
 
             os.close();
         }

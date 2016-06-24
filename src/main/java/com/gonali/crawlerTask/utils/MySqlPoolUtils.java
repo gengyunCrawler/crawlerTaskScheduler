@@ -11,7 +11,7 @@ import java.util.Map.Entry;
 /**
  * Created by TianyuanPan on 5/25/16.
  */
-public class MySqlPoolUtils extends LoggerUtil {
+public class MySqlPoolUtils extends LoggerUtils {
 
 
     private static volatile MySqlPoolUtils pool;

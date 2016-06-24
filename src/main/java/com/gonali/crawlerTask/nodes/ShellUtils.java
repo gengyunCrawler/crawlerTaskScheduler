@@ -1,6 +1,6 @@
 package com.gonali.crawlerTask.nodes;
 
-import com.gonali.crawlerTask.utils.LoggerUtil;
+import com.gonali.crawlerTask.utils.LoggerUtils;
 import com.jcraft.jsch.*;
 
 import java.io.IOException;
@@ -10,7 +10,7 @@ import java.io.OutputStream;
 /**
  * Created by TianyuanPan on 6/4/16.
  */
-public class ShellUtils extends LoggerUtil {
+public class ShellUtils extends LoggerUtils {
 
     private JSch jsch;
     private Session session;

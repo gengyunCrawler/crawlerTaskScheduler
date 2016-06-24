@@ -4,7 +4,6 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Serializable;
 
@@ -13,19 +12,19 @@ import java.io.Serializable;
  * Created by 黄海 on 15-12-30.
  */
 
-public class JedisPoolUtils implements Serializable {
+public class RedisJedisPoolUtils implements Serializable {
 
     private static JedisPool pool;
     private Jedis jedis;
 
 
-    private JedisPoolUtils() {
+    private RedisJedisPoolUtils() {
 
         jedis = null;
     }
 
 
-    private static void makepool() throws FileNotFoundException, IOException {
+    private static void makepool() throws IOException {
 
         if (pool == null) {
 
@@ -38,18 +37,18 @@ public class JedisPoolUtils implements Serializable {
         }
     }
 
-    public static JedisPool getJedisPool() throws FileNotFoundException, IOException {
+    public static JedisPool getJedisPool() throws IOException {
         if (pool == null)
             makepool();
         return pool;
     }
 
-    public static Jedis getJedis() throws FileNotFoundException, IOException {
-        JedisPoolUtils jedisPoolUtils = new JedisPoolUtils();
-        if (jedisPoolUtils.jedis == null) {
-            jedisPoolUtils.jedis = getJedisPool().getResource();
+    public static Jedis getJedis() throws IOException {
+        RedisJedisPoolUtils redisJedisPoolUtils = new RedisJedisPoolUtils();
+        if (redisJedisPoolUtils.jedis == null) {
+            redisJedisPoolUtils.jedis = getJedisPool().getResource();
         }
-        return jedisPoolUtils.jedis;
+        return redisJedisPoolUtils.jedis;
     }
 
     public static void cleanAll() {
@@ -59,11 +58,10 @@ public class JedisPoolUtils implements Serializable {
 
     public static void cleanJedis(Jedis jedis) {
         if (pool != null) {
+
             pool.returnResource(jedis);
-            return;
         }
 
-        jedis.close();
     }
 }
 

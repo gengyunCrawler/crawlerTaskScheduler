@@ -2,7 +2,7 @@ package com.gonali.crawlerTask.dao;
 
 import com.gonali.crawlerTask.dao.client.MysqlClient;
 import com.gonali.crawlerTask.model.EntityModel;
-import com.gonali.crawlerTask.utils.LoggerUtil;
+import com.gonali.crawlerTask.utils.LoggerUtils;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * Created by TianyuanPan on 6/3/16.
  */
-public class TaskUserModelDao extends LoggerUtil implements QueryDao {
+public class TaskUserModelDao extends LoggerUtils implements QueryDao {
 
 
     private MysqlClient mysqlClient;

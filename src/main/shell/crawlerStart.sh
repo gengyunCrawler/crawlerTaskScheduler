@@ -14,7 +14,7 @@ then
 fi
 
 TOPIC_CRAWLER_JAR=
-WHOLE_SITE_CRAWLER_JAR=
+WHOLE_SITE_CRAWLER_JAR=gycrawlerWebmagicDemo-1.0-SNAPSHOT.jar
 HOME_PAGE_CRAWLER_JAR=
 
 LOGS_DIR=`pwd`/crawler.logs

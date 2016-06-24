@@ -59,11 +59,18 @@ public class HeartbeatUpdater implements Runnable {
 
         while (true) {
 
-            updateHeartbeatMsg();
-            heartbeatTimeoutCheck();
+            try {
+
+                updateHeartbeatMsg();
+                heartbeatTimeoutCheck();
+
+            } catch (Exception e) {
+                System.out.println("Exception: at HeartbeatUpdater, method run().");
+                e.printStackTrace();
+            }
 
             try {
-                Thread.sleep(checkInterval * 100);
+                Thread.sleep(checkInterval * 10);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -106,6 +113,7 @@ public class HeartbeatUpdater implements Runnable {
 
             }
         } catch (Exception e) {
+            System.out.println("Exception: at HeartbeatUpdater, method updateHeartbeatMsg().");
             e.printStackTrace();
         } finally {
 
@@ -128,10 +136,16 @@ public class HeartbeatUpdater implements Runnable {
                     h.setStatusCode(HeartbeatStatusCode.TIMEOUT);
                     h.setTimeoutCount(h.getTimeoutCount() + 1);
                     heartbeatMsgList.set(i, h);
+                } else if (currentTime - h.getTime() > 3 * 1000 * HeartbeatUpdater.getCheckInterval() &&
+                        h.getStatusCode() == HeartbeatStatusCode.FINISHED) {
+                    //h.setStatusCode(HeartbeatStatusCode.TIMEOUT);
+                    h.setTimeoutCount(h.getTimeoutCount() + 1);
+                    heartbeatMsgList.set(i, h);
                 }
 
             }
         } catch (Exception e) {
+            System.out.println("Exception: at HeartbeatUpdater, method heartbeatTimeoutCheck().");
             e.printStackTrace();
         } finally {
 
@@ -139,18 +153,24 @@ public class HeartbeatUpdater implements Runnable {
         }
     }
 
-    public void cleanMoreTimeoutHeartbeat(int timesOfMaxTimeout){
+    public void cleanMoreTimeoutHeartbeat(int timesOfMaxTimeout) {
 
         try {
             myLock.lock();
 
-            for(HeartbeatMsgModel h : heartbeatMsgList){
+            List<Integer> index = new ArrayList<>();
+            int size = heartbeatMsgList.size();
 
-                if (h.getTimeoutCount() > timesOfMaxTimeout * getMaxTimeoutCount()) {
-                    heartbeatMsgList.remove(h);
+            for (int i = 0; i < size; i++) {
+
+                if (heartbeatMsgList.get(i).getTimeoutCount() > timesOfMaxTimeout * getMaxTimeoutCount()) {
+                    index.add(i);
                 }
             }
+            for (Integer i : index)
+                heartbeatMsgList.remove(i.intValue());
         } catch (Exception e) {
+            System.out.println("Exception: at HeartbeatUpdater, method cleanMoreTimeoutHeartbeat(...).");
             e.printStackTrace();
         } finally {
 
@@ -179,17 +199,21 @@ public class HeartbeatUpdater implements Runnable {
 
         try {
             myLock.lock();
+            List<Integer> index = new ArrayList<>();
+            int size = heartbeatMsgList.size();
+            for (int i = 0; i < size; i++) {
 
-            for (HeartbeatMsgModel msg : this.heartbeatMsgList) {
-
-                if (msg.getTaskId().equals(taskId) &&
-                        msg.getHostname().equals(hostname) &&
-                        msg.getPid() == pid)
-                    this.heartbeatMsgList.remove(msg);
+                if (heartbeatMsgList.get(i).getTaskId().equals(taskId) &&
+                        heartbeatMsgList.get(i).getHostname().equals(hostname) &&
+                        heartbeatMsgList.get(i).getPid() == pid)
+                    index.add(i);
             }
 
-        } catch (Exception e) {
+            for (Integer i : index)
+                heartbeatMsgList.remove(i.intValue());
 
+        } catch (Exception e) {
+            System.out.println("Exception: at HeartbeatUpdater.java, method cleanFinishedHeartbeat(...).");
             e.printStackTrace();
         } finally {
 
@@ -211,7 +235,7 @@ public class HeartbeatUpdater implements Runnable {
             return newList;
 
         } catch (Exception e) {
-
+            System.out.println("Exception: at HeartbeatUpdater.java, method getHeartbeatMsgList().");
             e.printStackTrace();
         } finally {
 
@@ -271,7 +295,7 @@ public class HeartbeatUpdater implements Runnable {
         return null;
     }
 
-    public static int getMaxTimeoutCount(){
+    public static int getMaxTimeoutCount() {
         return maxTimeoutCount;
     }
 

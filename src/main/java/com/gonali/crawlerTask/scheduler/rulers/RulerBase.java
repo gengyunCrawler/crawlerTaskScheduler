@@ -22,7 +22,7 @@ public abstract class RulerBase implements Ruler {
     protected TaskModelDao taskModelDao;
     protected long maxTaskQueueLength;
     protected long currentTaskQueueLength;
-    protected List<String> inQueueTaskIdList;
+    protected String[] inQueueTaskIdArray;
     protected String taskTableName = "crawlerTaskTable";
     protected List<EntityModel> writeBackEntityList;
 
@@ -39,7 +39,7 @@ public abstract class RulerBase implements Ruler {
         }
 
         //currentTaskQueueLength = TaskQueue.queueLenth();
-        inQueueTaskIdList = new ArrayList<>();
+        inQueueTaskIdArray = new String[(int) maxTaskQueueLength];
         taskModelDao = new TaskModelDao();
 
         writeBackEntityList = new ArrayList<>();
@@ -73,20 +73,26 @@ public abstract class RulerBase implements Ruler {
         return writeBackEntityList.contains(o);
     }
 
-    public List<String> getInQueueTaskIdList() {
+    public List<String> getInQueueTaskIdArray() {
         List<String> inQueue = new ArrayList<>();
         String new_s;
 
         try {
             myLock.lock();
-            for (String s : inQueueTaskIdList) {
+            int size = inQueueTaskIdArray.length;
+            for (int i = 0; i < size; i++) {
 
-                new_s = new String(s);
+                if(inQueueTaskIdArray[i] == null)
+                    continue;
+                new_s = new String(inQueueTaskIdArray[i]);
 
                 inQueue.add(new_s);
             }
+
         } catch (Exception e) {
+            System.out.println("Exception: at RulerBase.java, method getInQueueTaskIdArray().");
             e.printStackTrace();
+
         } finally {
 
             myLock.unlock();
@@ -100,16 +106,19 @@ public abstract class RulerBase implements Ruler {
 
         try {
             myLock.lock();
-            int size = inQueueTaskIdList.size();
+            int size = inQueueTaskIdArray.length;
             int i;
             for (i = 0; i < size; i++) {
 
-                if (inQueueTaskIdList.get(i).equals(taskId)) {
-                    inQueueTaskIdList.remove(i);
+                if (inQueueTaskIdArray[i] == null)
+                    continue;
+                if (inQueueTaskIdArray[i].equals(taskId)) {
+                    inQueueTaskIdArray[i] = null;
                     break;
                 }
             }
         } catch (Exception e) {
+            System.out.println("Exception: at RulerBase.java, method removeInQueueTaskId(...).");
             e.printStackTrace();
         } finally {
             myLock.unlock();
@@ -121,12 +130,16 @@ public abstract class RulerBase implements Ruler {
         try {
             myLock.lock();
 
-            for (String s : inQueueTaskIdList)
-                if (s.equals(taskId))
+            int size = inQueueTaskIdArray.length;
+            for (int i = 0; i < size; i++) {
+                if (inQueueTaskIdArray[i] == null)
+                    continue;
+                if (inQueueTaskIdArray[i].equals(taskId))
                     return true;
+            }
 
         } catch (Exception e) {
-
+            System.out.println("Exception: at RulerBase.java, method isInQueueTaskIdHaveThis(...).");
             e.printStackTrace();
 
         } finally {
@@ -139,7 +152,25 @@ public abstract class RulerBase implements Ruler {
 
     public void addTaskIdToInQueue(String taskId) {
 
-        if (!isInQueueTaskIdHaveThis(taskId))
-            inQueueTaskIdList.add(taskId);
+        if (!isInQueueTaskIdHaveThis(taskId)) {
+
+            myLock.lock();
+
+            try {
+                int size = inQueueTaskIdArray.length;
+                for (int i = 0; i < size; i++) {
+
+                    if (inQueueTaskIdArray[i] == null) {
+                        inQueueTaskIdArray[i] = taskId;
+                        break;
+                    }
+                }
+            } catch (Exception e) {
+                System.out.println("Exception: at RulerBase.java, method addTaskIdToInQueue(...).");
+                e.printStackTrace();
+            } finally {
+                myLock.unlock();
+            }
+        }
     }
 }

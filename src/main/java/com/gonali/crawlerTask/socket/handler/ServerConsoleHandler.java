@@ -2,13 +2,15 @@ package com.gonali.crawlerTask.socket.handler;
 
 import com.gonali.crawlerTask.message.HandlerMessage;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.Socket;
 
 /**
  * Created by TianyuanPan on 6/4/16.
  */
-public class ServerConsoleHander implements SocketHandler {
+public class ServerConsoleHandler implements SocketHandler {
 
     private BufferedReader in;
     private PrintWriter out;
@@ -43,14 +45,14 @@ public class ServerConsoleHander implements SocketHandler {
             in.close();
 
         } catch (Exception ex) {
-
+            System.out.println("Exception: at ServerConsoleHandler.java, method doHandle(...).");
             ex.printStackTrace();
 
         } finally {
             try {
                 mySocket.close();
             } catch (Exception ex) {
-                System.out.println("close socket error.");
+                System.out.println("Exception: at ServerConsoleHandler.java, method doHandle(...), close socket error.");
                 ex.printStackTrace();
             }
         }

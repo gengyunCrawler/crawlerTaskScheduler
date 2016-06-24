@@ -1,7 +1,7 @@
 package com.gonali.crawlerTask.dao.client;
 
 import com.gonali.crawlerTask.utils.ConfigUtils;
-import com.gonali.crawlerTask.utils.LoggerUtil;
+import com.gonali.crawlerTask.utils.LoggerUtils;
 import com.gonali.crawlerTask.utils.MySqlPoolUtils;
 
 import java.sql.Connection;
@@ -12,7 +12,7 @@ import java.sql.Statement;
 /**
  * Created by TianyuanPan on 6/2/16.
  */
-public class MysqlClient extends LoggerUtil {
+public class MysqlClient extends LoggerUtils {
 
     private Statement myStatement;
     private ConfigUtils configUtils;

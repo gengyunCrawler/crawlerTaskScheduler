@@ -17,7 +17,7 @@ public class CurrentTask {
 
         private TaskModel task;
         private int heartbeatStatusCode;
-        private boolean isFinish;
+        private boolean isFinished;
         private List<HeartbeatMsgModel> heartbeatList;
 
         public CurrentTaskModel(TaskModel task) {
@@ -25,7 +25,7 @@ public class CurrentTask {
             this.task = task;
             this.task.setTaskStatus(TaskStatus.UNCRAWL);
             this.heartbeatStatusCode = HeartbeatStatusCode.STARTING;
-            this.isFinish = false;
+            this.isFinished = false;
             this.heartbeatList = new ArrayList<>();
         }
 
@@ -53,13 +53,13 @@ public class CurrentTask {
             this.heartbeatStatusCode = heartbeatStatusCode;
         }
 
-        public boolean isFinish() {
+        public boolean isFinished() {
 
-            return isFinish;
+            return isFinished;
         }
 
-        public void setIsFinish(boolean isFinish) {
-            this.isFinish = isFinish;
+        public void setIsFinished(boolean isFinished) {
+            this.isFinished = isFinished;
         }
 
 
@@ -67,9 +67,40 @@ public class CurrentTask {
             return heartbeatList;
         }
 
-        public void setHeartbeatList(List<HeartbeatMsgModel> heartbeatList) {
+        public void updateHeartbeatList(List<HeartbeatMsgModel> heartbeatList) {
 
-            this.heartbeatList = heartbeatList;
+
+            int msgSize = this.heartbeatList.size();
+            boolean isHave;
+
+            if (msgSize == 0) {
+
+                for (HeartbeatMsgModel h : heartbeatList)
+                    this.heartbeatList.add(h);
+
+                return;
+            }
+
+            for (HeartbeatMsgModel h : heartbeatList) {
+                isHave = false;
+                for (int i = 0; i < msgSize; ++i) {
+                    if (this.heartbeatList.get(i).getHostname().equals(h.getHostname()) &&
+                            this.heartbeatList.get(i).getPid() == h.getPid()) {
+
+                        this.heartbeatList.set(i, h);
+
+                        isHave = true;
+                        break;
+                    }
+                }
+
+                if (!isHave)
+                    this.heartbeatList.add(h);
+
+                msgSize = this.heartbeatList.size();
+
+            }
+
             int code = HeartbeatStatusCode.FINISHED;
             for (HeartbeatMsgModel h : this.heartbeatList)
                 code += h.getStatusCode();
@@ -98,7 +129,7 @@ public class CurrentTask {
 
             if (task == null)
                 continue;
-            if (task.isFinish) {
+            if (task.isFinished) {
 
                 List<HeartbeatMsgModel> heartbeat = task.getHeartbeatList();
                 for (HeartbeatMsgModel h : heartbeat)
@@ -121,12 +152,12 @@ public class CurrentTask {
         for (int i = 0; i < this.taskNumber; i++) {
             if (this.currentTaskArray[i] == null) {
                 this.currentTaskArray[i] = new CurrentTaskModel(task);
-                this.currentTaskArray[i].setIsFinish(false);
+                this.currentTaskArray[i].setIsFinished(false);
                 break;
             }
-            if (this.currentTaskArray[i].isFinish()) {
+            if (this.currentTaskArray[i].isFinished()) {
                 this.currentTaskArray[i] = new CurrentTaskModel(task);
-                this.currentTaskArray[i].setIsFinish(false);
+                this.currentTaskArray[i].setIsFinished(false);
                 break;
             }
         }
@@ -141,7 +172,7 @@ public class CurrentTask {
             if (task == null)
                 return true;
 
-            if (task.isFinish())
+            if (task.isFinished())
                 return true;
         }
 
@@ -182,7 +213,7 @@ public class CurrentTask {
                     list.add(h);
             }
             if (currentTaskArray[i] != null) {
-                currentTaskArray[i].setHeartbeatList(list);
+                currentTaskArray[i].updateHeartbeatList(list);
                 //System.out.println("taskId::" + currentTaskArray[i].getTask().getTaskId() + "::Heartbeat::" + JSON.toJSONString(currentTaskArray[i].getHeartbeatList()));
             }
         }
@@ -210,7 +241,7 @@ public class CurrentTask {
 
             if (currentTaskArray[i] == null)
                 continue;
-            if (currentTaskArray[i].isFinish())
+            if (currentTaskArray[i].isFinished())
                 taskModelList.add(currentTaskArray[i].getTask());
         }
 
@@ -237,14 +268,14 @@ public class CurrentTask {
         for (int i = 0; i < taskNumber; i++) {
             if (currentTaskArray[i] == null)
                 continue;
-            if (currentTaskArray[i].isFinish) {
+            if (currentTaskArray[i].isFinished) {
                 currentTaskArray[i].setTaskStatus(TaskStatus.CRAWLED);
             }
         }
     }
 
 
-    public void taskFinishChecking() {
+    public void taskFinishedChecking() {
 
         int heartbeatCode;
 
@@ -254,23 +285,29 @@ public class CurrentTask {
                 if (currentTaskArray[i] == null)
                     continue;
                 int size = currentTaskArray[i].getHeartbeatList().size();
-                if (size < nodes && currentTaskArray[i].getHeartbeatStatusCode() != HeartbeatStatusCode.TIMEOUT)
+
+                /*if (size < nodes && currentTaskArray[i].getHeartbeatStatusCode() != HeartbeatStatusCode.TIMEOUT)
+                    continue;*/
+                if (size == 0)
                     continue;
+
                 heartbeatCode = currentTaskArray[i].getHeartbeatStatusCode();
 
                 if (heartbeatCode == HeartbeatStatusCode.FINISHED) {
                     currentTaskArray[i].setHeartbeatStatusCode(HeartbeatStatusCode.FINISHED);
                     currentTaskArray[i].setTaskStatus(TaskStatus.CRAWLED);
-                    currentTaskArray[i].setIsFinish(true);
+                    currentTaskArray[i].setIsFinished(true);
                     System.out.println("FINISHED TASK: taskId = [ " + currentTaskArray[i].getTaskId() + " ]");
                 }
+
             }
         } catch (Exception e) {
+            System.out.println("Exception: at CurrentTask.java, method taskFinishedChecking().");
             e.printStackTrace();
         }
     }
 
-    public void taskNodeTimeoutChecking(){
+    public void taskNodeTimeoutChecking() {
 
         List<HeartbeatMsgModel> heartbeatList;
 
@@ -278,11 +315,11 @@ public class CurrentTask {
             for (int i = 0; i < taskNumber; i++) {
                 if (currentTaskArray[i] == null)
                     continue;
-                if (!currentTaskArray[i].isFinish) {
+                if (!currentTaskArray[i].isFinished) {
                     heartbeatList = currentTaskArray[i].getHeartbeatList();
                     HeartbeatMsgModel h;
                     int size = heartbeatList.size();
-                    for (int j = 0; j < size; j++ ){
+                    for (int j = 0; j < size; j++) {
                         h = heartbeatList.get(j);
                         if (h.getStatusCode() != HeartbeatStatusCode.FINISHED &&
                                 h.getTimeoutCount() > HeartbeatUpdater.getMaxTimeoutCount()) {
@@ -290,13 +327,12 @@ public class CurrentTask {
                             heartbeatList.set(j, h);
                         }
                     }
-                    currentTaskArray[i].setHeartbeatList(heartbeatList);
+                    currentTaskArray[i].updateHeartbeatList(heartbeatList);
                 }
             }
         } catch (Exception e) {
-            Exception ex;
-            ex = e;
-            ex.printStackTrace();
+            System.out.println("Exception: at CurrentTask.java, method taskNodeTimeoutChecking().");
+            e.printStackTrace();
         }
     }
 }

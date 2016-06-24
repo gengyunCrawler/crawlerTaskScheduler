@@ -11,7 +11,7 @@ CREATE TABLE crawlerTaskUserTable
 CREATE TABLE crawlerTaskTable
 (
   userId VARCHAR(64) NOT NULL,
-  taskId VARCHAR(64) NOT NULL,
+  taskId VARCHAR(128) NOT NULL,
   taskType ENUM('UNSET', 'TOPIC', 'WHOLESITE') DEFAULT 'UNSET' NOT NULL,
   taskRemark TEXT,
   taskSeedUrl TEXT,

@@ -6,6 +6,7 @@ import com.gonali.crawlerTask.scheduler.TaskScheduler;
 import com.gonali.crawlerTask.scheduler.rulers.RulerBase;
 import com.sun.net.httpserver.HttpExchange;
 
+import java.lang.management.ManagementFactory;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -19,6 +20,8 @@ public class SimpleResponse extends ResposeBase {
 
     @Override
     public String responseContents(HttpExchange exchange, TaskScheduler scheduler) {
+
+        String pid = ManagementFactory.getRuntimeMXBean().getName().split("@")[0];
 
         List<String[]> hostInfosList = scheduler.getHostInfoList();
         List<String> nodeIpList = new ArrayList<>();
@@ -48,7 +51,7 @@ public class SimpleResponse extends ResposeBase {
                 "</head>\n" +
                 "\n" +
                 "<body>\n" +
-                "<h1 align=\"center\">调度器状态</h1>\n" +
+                "<h1 align=\"center\">调 度 器 状 态<br/>PID:"+ pid +"</h1>\n" +
                 "<ul>\n" +
                 "    <li class=\"STYLE1\">\n" +
                 "        <div align=\"center\">任务节点数量：" + nods + "<strong> 节点IP[ " + nodeIp + " ]</strong></div>\n" +
@@ -69,9 +72,9 @@ public class SimpleResponse extends ResposeBase {
         for (TaskModel t : taskModelList) {
 
             currentTask += "<tr>\n" +
-                    " <td>" + t.getTaskId() + "</td>\n" +
-                    " <td>" + t.getUserId() + "</td>\n" +
-                    " <td>" + t.getTaskStatus() + "</td>\n" +
+                    " <td> " + t.getTaskId() + " </td>\n" +
+                    " <td> " + t.getUserId() + " </td>\n" +
+                    " <td> " + t.getTaskStatus() + "</td>\n" +
                     "</tr>";
         }
 
@@ -81,19 +84,19 @@ public class SimpleResponse extends ResposeBase {
                 "            当前任务状态\n" +
                 "        </caption>\n" +
                 "        <tr>\n" +
-                "            <td>任务 id</td>\n" +
-                "            <td>用户 id</td>\n" +
-                "            <td>任务状态</td>\n" +
+                "            <td> 任务 id </td>\n" +
+                "            <td> 用户 id </td>\n" +
+                "            <td> 任务状态 </td>\n" +
                 "        </tr>\n" + currentTask +
                 "    </table>\n" +
                 "    <p>&nbsp;</p>";
 
 
-        List<String> queueTidList = ((RulerBase) scheduler.getRuler()).getInQueueTaskIdList();
+        List<String> queueTidList = ((RulerBase) scheduler.getRuler()).getInQueueTaskIdArray();
         String queueTid = "";
         for (String s : queueTidList)
             queueTid += "<tr>\n" +
-                    "   <td>" + s + "</td>\n" +
+                    "   <td> " + s + " </td>\n" +
                     "</tr>";
 
         String htmlPartC = "    <table width=\"200\" border=\"1\">\n" +
@@ -108,15 +111,16 @@ public class SimpleResponse extends ResposeBase {
 
         String heartbeatMsg = "";
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("YYYY-MM-dd HH:mm:ss");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("YYYY-MM-dd/HH:mm:ss");
 
         for (HeartbeatMsgModel h : heartbeatMsgModelList)
             heartbeatMsg += "<tr>\n" +
-                    "  <td>" + h.getTaskId() + "</td>\n" +
-                    "  <td>" + h.getHostname() + "</td>\n" +
-                    "  <td>" + h.getPid() + "</td>\n" +
-                    "  <td>" + dateFormat.format(new Date(h.getTime() ))  + "</td>\n" +
-                    "  <td>" + h.getTimeoutCount() + "</td>\n" +
+                    "  <td> " + h.getTaskId() + " </td>\n" +
+                    "  <td> " + h.getHostname() + " </td>\n" +
+                    "  <td> " + h.getPid() + " </td>\n" +
+                    "  <td> " + h.getStatusCode() + " </td>\n" +
+                    "  <td> " + dateFormat.format(new Date(h.getTime() ))  + " </td>\n" +
+                    "  <td> " + h.getTimeoutCount() + " </td>\n" +
                     "</tr>";
 
         String htmlPartD = "    <table width=\"200\" border=\"1\">\n" +
@@ -124,11 +128,12 @@ public class SimpleResponse extends ResposeBase {
                 "            节点心跳状态 ["+ heartbeatMsgModelList.size() +"]\n" +
                 "        </caption>\n" +
                 "        <tr>\n" +
-                "            <td>任务 ID</td>\n" +
-                "            <td>节点 IP</td>\n" +
-                "            <td>进程 PID</td>\n" +
-                "            <td>心跳时间</td>\n" +
-                "            <td>超时计数</td>\n" +
+                "            <td> 任务 ID </td>\n" +
+                "            <td> 节点 IP </td>\n" +
+                "            <td> 进程 PID </td>\n" +
+                "            <td> 心 跳 状 态 </td>\n" +
+                "            <td> 心 跳 时 间 </td>\n" +
+                "            <td> 超 时 计 数 </td>\n" +
                 "        </tr>\n" + heartbeatMsg +
                 "    </table>\n" +
                 "    <!-- <p>\n" +

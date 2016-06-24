@@ -1,12 +1,11 @@
 package com.gonali.crawlerTask.redisQueue;
 
 import com.gonali.crawlerTask.model.TaskModel;
-import com.gonali.crawlerTask.utils.JedisPoolUtils;
+import com.gonali.crawlerTask.utils.RedisJedisPoolUtils;
 import com.gonali.crawlerTask.utils.ObjectSerializeUtils;
 import redis.clients.jedis.Jedis;
 
 import java.io.IOException;
-import java.util.List;
 
 /**
  * Created by TianyuanPan on 6/2/16.
@@ -29,7 +28,7 @@ public class TaskQueue {
         try {
 
             byte[] bytes = ObjectSerializeUtils.serializeToBytes(taskModel);
-            jedis = JedisPoolUtils.getJedis();
+            jedis = RedisJedisPoolUtils.getJedis();
             jedis.select(dbIndex);
             jedis.lpush(QUEUE_KEY.getBytes(), bytes);
 
@@ -39,7 +38,7 @@ public class TaskQueue {
 
         } finally {
 
-            JedisPoolUtils.cleanJedis(jedis);
+            RedisJedisPoolUtils.cleanJedis(jedis);
         }
 
     }
@@ -50,7 +49,7 @@ public class TaskQueue {
 
         try {
 
-            jedis = JedisPoolUtils.getJedis();
+            jedis = RedisJedisPoolUtils.getJedis();
             jedis.select(dbIndex);
             byte[] bytes = jedis.rpop(QUEUE_KEY.getBytes());
             if (bytes == null)
@@ -65,7 +64,7 @@ public class TaskQueue {
 
         } finally {
 
-            JedisPoolUtils.cleanJedis(jedis);
+            RedisJedisPoolUtils.cleanJedis(jedis);
         }
 
         return null;
@@ -76,14 +75,14 @@ public class TaskQueue {
         Jedis jedis = null;
 
         try {
-            jedis = JedisPoolUtils.getJedis();
+            jedis = RedisJedisPoolUtils.getJedis();
             jedis.select(dbIndex);
             return jedis.llen(QUEUE_KEY.getBytes());
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
 
-            JedisPoolUtils.cleanJedis(jedis);
+            RedisJedisPoolUtils.cleanJedis(jedis);
         }
 
         return 0;
