@@ -25,12 +25,12 @@ public class SimpleLongTimeFirstRuler extends RulerBase {
     @Override
     public void writeBack(TaskScheduler scheduler) {
 
-        List<TaskModel> currentTasks = scheduler.getCurrentTasks().getCrawledTask();
+        //List<TaskModel> currentTasks = scheduler.getCurrentTasks().getCrawledTask();
 
         try {
 
-            for (TaskModel t : currentTasks)
-                addToWriteBack(t);
+            /*for (TaskModel t : currentTasks)
+                addToWriteBack(t);*/
 
             for (EntityModel m : writeBackEntityList) {
                 taskModelDao.update(taskTableName, m);
@@ -97,7 +97,12 @@ public class SimpleLongTimeFirstRuler extends RulerBase {
         int size = modelList.size();
         for (int i = 0; i < size; i++) {
 
-            if (!isInQueueTaskIdHaveThis(((TaskModel) modelList.get(i)).getTaskId())) {
+            /*if (!isInQueueTaskIdHaveThis(((TaskModel) modelList.get(i)).getTaskId())) {
+                toQueue.add(modelList.get(i));
+            }*/
+
+            if (!isInQueueTaskIdHaveThis(((TaskModel) modelList.get(i)).getTaskId()) &&
+                    ((TaskModel) modelList.get(i)).getTaskStatus() == TaskStatus.UNCRAWL) {
                 toQueue.add(modelList.get(i));
             }
         }

@@ -81,17 +81,22 @@ public class TaskModelDao extends LoggerUtils implements QueryDao {
             model.setTaskRegexFilterPath(resultSet.getString(TaskModeTableField.taskRegexFilterPath));
 
             switch (resultSet.getNString(TaskModeTableField.taskStatus)) {
-//                case "CRAWLING":
-//                    model.setTaskStatus(TaskStatus.CRAWLING);
-//                    break;
+                case "CRAWLING":
+                    model.setTaskStatus(TaskStatus.CRAWLING);
+                    break;
                 case "CRAWLED":
                     model.setTaskStatus(TaskStatus.CRAWLED);
                     break;
                 case "EXCEPTIOSTOP":
                     model.setTaskStatus(TaskStatus.EXCEPTIOSTOP);
                     break;
-                default:
+                case "INQUEUE":
+                    model.setTaskStatus(TaskStatus.INQUEUE);
+                    break;
+                case "UNCRAWL":
                     model.setTaskStatus(TaskStatus.UNCRAWL);
+                    break;
+                default:
                     break;
             }
 

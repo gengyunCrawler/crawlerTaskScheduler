@@ -253,8 +253,9 @@ public class TaskScheduler {
                     setTaskStartInfo(t);
 
                     System.out.println("Starting task, Id = [ " + t.getTaskId() + " ]");
+                    new Thread(new NodesStarting(t, nodeInfoList)).start();
 
-                    for (NodeInfo node : nodeInfoList) {
+                   /* for (NodeInfo node : nodeInfoList) {
 
                         try {
 
@@ -266,17 +267,17 @@ public class TaskScheduler {
                             System.out.println("Exception: at TaskScheduler.java, method schedulerStart() A.");
                             ex.printStackTrace();
                         }
-                    }
+                    }*/
                 }
 
                 killTimeoutNodes(currentTasks);
 
                 currentTasks.taskStatusChecking();
                 currentTasks.taskNodeTimeoutChecking();
-                currentTasks.taskFinishedChecking();
+                currentTasks.taskFinishedChecking(this);
                 currentTasks.cleanFinishedHeartbeat(this.heartbeatUpdater);
 
-                heartbeatUpdater.cleanMoreTimeoutHeartbeat(3);
+                heartbeatUpdater.cleanMoreTimeoutHeartbeat(30);
 
                 //System.out.println("Is CurrentTaskArray have finished task ? : " + currentTasks.isHaveFinishedTask());
 

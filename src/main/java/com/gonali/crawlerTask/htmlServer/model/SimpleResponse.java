@@ -21,6 +21,8 @@ public class SimpleResponse extends ResposeBase {
     @Override
     public String responseContents(HttpExchange exchange, TaskScheduler scheduler) {
 
+        SimpleDateFormat dateFormat = new SimpleDateFormat("YYYY-MM-dd/HH:mm:ss");
+
         String pid = ManagementFactory.getRuntimeMXBean().getName().split("@")[0];
 
         List<String[]> hostInfosList = scheduler.getHostInfoList();
@@ -71,10 +73,16 @@ public class SimpleResponse extends ResposeBase {
         String currentTask = "";
         for (TaskModel t : taskModelList) {
 
+            long dateTime = System.currentTimeMillis() - t.getTaskStartTime();
+            int hour = (int)((dateTime/1000)/60/60);
+            int min = (int)(((dateTime/1000)/60%60));
+            int sec = (int)((dateTime/1000)%60);
             currentTask += "<tr>\n" +
                     " <td> " + t.getTaskId() + " </td>\n" +
                     " <td> " + t.getUserId() + " </td>\n" +
                     " <td> " + t.getTaskStatus() + "</td>\n" +
+                    " <td> " + dateFormat.format(new Date(t.getTaskStartTime())) + "</td>\n" +
+                    " <td> " + hour +" 小时 "+ min + " 分 " + sec + " 秒 " + "</td>\n" +
                     "</tr>";
         }
 
@@ -87,6 +95,8 @@ public class SimpleResponse extends ResposeBase {
                 "            <td> 任务 id </td>\n" +
                 "            <td> 用户 id </td>\n" +
                 "            <td> 任务状态 </td>\n" +
+                "            <td> 开始时间 </td>\n" +
+                "            <td> 持续时间 </td>\n" +
                 "        </tr>\n" + currentTask +
                 "    </table>\n" +
                 "    <p>&nbsp;</p>";
@@ -111,7 +121,6 @@ public class SimpleResponse extends ResposeBase {
 
         String heartbeatMsg = "";
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("YYYY-MM-dd/HH:mm:ss");
 
         for (HeartbeatMsgModel h : heartbeatMsgModelList)
             heartbeatMsg += "<tr>\n" +

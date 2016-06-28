@@ -39,6 +39,8 @@ public class MainDeamon {
         Thread htmlDeamon = new Thread(this.htmlDeamon);
 
        // heartbeatDeamon.start();
+        taskDeamon.setDaemon(false);
+        htmlDeamon.setDaemon(false);
         taskDeamon.start();
         htmlDeamon.start();
 

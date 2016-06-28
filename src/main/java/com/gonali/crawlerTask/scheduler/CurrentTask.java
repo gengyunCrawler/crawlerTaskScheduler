@@ -4,6 +4,7 @@ import com.gonali.crawlerTask.handler.model.HeartbeatMsgModel;
 import com.gonali.crawlerTask.handler.model.HeartbeatStatusCode;
 import com.gonali.crawlerTask.model.TaskModel;
 import com.gonali.crawlerTask.model.TaskStatus;
+import com.gonali.crawlerTask.scheduler.rulers.RulerBase;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -105,6 +106,12 @@ public class CurrentTask {
             for (HeartbeatMsgModel h : this.heartbeatList)
                 code += h.getStatusCode();
             this.heartbeatStatusCode = code;
+        }
+
+
+        public void setTaskStopTime(long time){
+
+            this.task.setTaskStopTime(time);
         }
 
     }
@@ -275,7 +282,7 @@ public class CurrentTask {
     }
 
 
-    public void taskFinishedChecking() {
+    public void taskFinishedChecking(TaskScheduler scheduler) {
 
         int heartbeatCode;
 
@@ -296,7 +303,9 @@ public class CurrentTask {
                 if (heartbeatCode == HeartbeatStatusCode.FINISHED) {
                     currentTaskArray[i].setHeartbeatStatusCode(HeartbeatStatusCode.FINISHED);
                     currentTaskArray[i].setTaskStatus(TaskStatus.CRAWLED);
+                    currentTaskArray[i].setTaskStopTime(System.currentTimeMillis());
                     currentTaskArray[i].setIsFinished(true);
+                    ((RulerBase)scheduler.getRuler()).addToWriteBack(currentTaskArray[i].getTask());
                     System.out.println("FINISHED TASK: taskId = [ " + currentTaskArray[i].getTaskId() + " ]");
                 }
 

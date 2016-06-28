@@ -165,6 +165,9 @@ public class HeartbeatUpdater implements Runnable {
 
                 if (heartbeatMsgList.get(i).getTimeoutCount() > timesOfMaxTimeout * getMaxTimeoutCount()) {
                     index.add(i);
+                }else if (heartbeatMsgList.get(i).getTimeoutCount() >  getMaxTimeoutCount() &&
+                        heartbeatMsgList.get(i).getStatusCode() == HeartbeatStatusCode.FINISHED){
+                    index.add(i);
                 }
             }
             for (Integer i : index)
